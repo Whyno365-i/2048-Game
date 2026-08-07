@@ -1,5 +1,6 @@
+import random
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QLabel
-
+from PySide6.QtCore import Qt
 
 def main():
     app= QApplication()
@@ -46,6 +47,117 @@ class Game(QMainWindow):
             #And add it to the game layout
             self.Game_layout.addWidget(n_box, x, y)
 
+        self.spawn_square()
+
+    def spawn_square(self):
+        self.box_number= random.randint(0, 15)
+
+        add_box=self.boxes[self.box_number]
+
+        numbers= ['2', '4', '8']
+        weights= [50, 40, 10]
+
+        number= random.choices(numbers, weights=weights)[0]
+
+        if number == '2':
+            add_box.setText('2')
+            add_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            add_box.setStyleSheet('''
+                QLabel {
+                background: #FFFFC5;
+                border-radius: 4px;
+                border: 1px solid #000000;
+                color: #000000;
+                font: 40px;      
+                }
+''')
+
+        if number == '4':
+            add_box.setText('4')
+            add_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            add_box.setStyleSheet('''
+                QLabel {
+                background: #FFD580;
+                border-radius: 4px;
+                border: 1px solid #000000;
+                color: #000000;
+                font: 40px;      
+                }
+''')
+
+        if number == '8':
+            add_box.setText('8')
+            add_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            add_box.setStyleSheet('''
+                QLabel {
+                background: #ffb09c;
+                border-radius: 4px;
+                border: 1px solid #000000;
+                color: #000000;
+                font: 40px;      
+                }
+''')
+
+        self.spawn_square_2()
+
+
+    def spawn_square_2(self):
+        self.box_number_2= random.randint(0, 15)
+
+        if self.box_number == self.box_number_2:
+            self.spawn_square_2()
+            return
+
+        add_box=self.boxes[self.box_number_2]
+
+        numbers= ['2', '4', '8']
+        weights= [50, 40, 10]
+
+        number= random.choices(numbers, weights=weights)[0]
+
+        if number == '2':
+            add_box.setText('2')
+            add_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            add_box.setStyleSheet('''
+                QLabel {
+                background: #FFFFC5;
+                border-radius: 4px;
+                border: 1px solid #000000;
+                color: #000000;
+                font: 40px;      
+                }
+''')
+
+        if number == '4':
+            add_box.setText('4')
+            add_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            add_box.setStyleSheet('''
+                QLabel {
+                background: #FFD580;
+                border-radius: 4px;
+                border: 1px solid #000000;
+                color: #000000;
+                font: 40px;      
+                }
+''')
+
+        if number == '8':
+            add_box.setText('8')
+            add_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            add_box.setStyleSheet('''
+                QLabel {
+                background: #ffb09c;
+                border-radius: 4px;
+                border: 1px solid #000000;
+                color: #000000;
+                font: 40px;      
+                }
+''')
+
+
+    def keyboard_inputs(self):
+        #TODO Figure out how you are going to make the game work
+        pass
 
 
 
