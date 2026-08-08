@@ -30,10 +30,17 @@ class Game(QMainWindow):
 
         self.boxes= []
 
+        self.game_list= [0, 0, 4, 2,
+                         0, 0, 0, 0,
+                         0, 0, 0, 0,
+                         0, 0, 0, 0]
+
+        for i in range(0, len(self.game_list), 4):
+            print(*self.game_list[i : i + 4])
+
+
         #How this work is that you make a list object first
-        for x_y in Grid_list:
-            x= x_y[0]
-            y= x_y[1]
+        for x, y in Grid_list:
 
             #The you make the Label for this run through
             n_box= QLabel()
@@ -47,75 +54,32 @@ class Game(QMainWindow):
             #And add it to the game layout
             self.Game_layout.addWidget(n_box, x, y)
 
-        self.spawn_square()
+        # self.spawn_square()
 
     def spawn_square(self):
         self.box_number= random.randint(0, 15)
 
-        add_box=self.boxes[self.box_number]
-
-        numbers= ['2', '4', '8']
-        weights= [50, 40, 10]
-
-        number= random.choices(numbers, weights=weights)[0]
-
-        if number == '2':
-            add_box.setText('2')
-            add_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            add_box.setStyleSheet('''
-                QLabel {
-                background: #FFFFC5;
-                border-radius: 4px;
-                border: 1px solid #000000;
-                color: #000000;
-                font: 40px;      
-                }
-''')
-
-        if number == '4':
-            add_box.setText('4')
-            add_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            add_box.setStyleSheet('''
-                QLabel {
-                background: #FFD580;
-                border-radius: 4px;
-                border: 1px solid #000000;
-                color: #000000;
-                font: 40px;      
-                }
-''')
-
-        if number == '8':
-            add_box.setText('8')
-            add_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            add_box.setStyleSheet('''
-                QLabel {
-                background: #ffb09c;
-                border-radius: 4px;
-                border: 1px solid #000000;
-                color: #000000;
-                font: 40px;      
-                }
-''')
-
-        self.spawn_square_2()
-
-
-    def spawn_square_2(self):
         self.box_number_2= random.randint(0, 15)
 
         if self.box_number == self.box_number_2:
-            self.spawn_square_2()
+            self.spawn_square()
             return
 
-        add_box=self.boxes[self.box_number_2]
+        add_box=self.boxes[self.box_number]
+
+        add_box_2=self.boxes[self.box_number_2]
 
         numbers= ['2', '4', '8']
         weights= [50, 40, 10]
 
         number= random.choices(numbers, weights=weights)[0]
 
-        if number == '2':
+        number2= random.choices(numbers, weights=weights)[0]
+
+        print(number, number2, '\n')
+
+
+        if number == '2' and add_box.text() == '':
             add_box.setText('2')
             add_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
             add_box.setStyleSheet('''
@@ -127,8 +91,23 @@ class Game(QMainWindow):
                 font: 40px;      
                 }
 ''')
+            self.game_list[self.box_number] = 2 # type: ignore
 
-        if number == '4':
+        if number2 == '2' and add_box_2.text() == '':
+            add_box_2.setText('2')
+            add_box_2.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            add_box_2.setStyleSheet('''
+                QLabel {
+                background: #FFFFC5;
+                border-radius: 4px;
+                border: 1px solid #000000;
+                color: #000000;
+                font: 40px;      
+                }
+''')
+            self.game_list[self.box_number_2] = 2 # type: ignore
+
+        if number == '4' and add_box.text() == '':
             add_box.setText('4')
             add_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
             add_box.setStyleSheet('''
@@ -140,8 +119,23 @@ class Game(QMainWindow):
                 font: 40px;      
                 }
 ''')
+            self.game_list[self.box_number] = 4 # type: ignore
 
-        if number == '8':
+        if number2 == '4' and add_box_2.text() == '':
+            add_box_2.setText('4')
+            add_box_2.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            add_box_2.setStyleSheet('''
+                QLabel {
+                background: #FFD580;
+                border-radius: 4px;
+                border: 1px solid #000000;
+                color: #000000;
+                font: 40px;      
+                }
+''')
+            self.game_list[self.box_number_2] = 4 # type: ignore
+
+        if number == '8' and add_box.text() == '':
             add_box.setText('8')
             add_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
             add_box.setStyleSheet('''
@@ -153,14 +147,74 @@ class Game(QMainWindow):
                 font: 40px;      
                 }
 ''')
+            self.game_list[self.box_number] = 8 # type: ignore
+
+        if number2 == '8' and add_box_2.text() == '':
+            add_box_2.setText('8')
+            add_box_2.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            add_box_2.setStyleSheet('''
+                QLabel {
+                background: #ffb09c;
+                border-radius: 4px;
+                border: 1px solid #000000;
+                color: #000000;
+                font: 40px;      
+                }
+''')
+            self.game_list[self.box_number_2] = 8 # type: ignore
+
+        for i in range(0, len(self.game_list), 4):
+            print(*self.game_list[i : i + 4])
 
 
-    def keyboard_inputs(self):
+    #The name of the function matters in this case
+    def keyPressEvent(self, event):
         #TODO Figure out how you are going to make the game work
-        pass
+        key= event.key()
+
+        if key == Qt.Key.Key_Left:
+            self.move_left()
+
+        if key == Qt.Key.Key_Right:
+            self.move_right()
+
+        if key == Qt.Key.Key_Up:
+            self.move_up()
+        
+        if key == Qt.Key.Key_Down:
+            self.move_down()
 
 
+        if key == Qt.Key.Key_A:
+            self.move_left()
 
+        if key == Qt.Key.Key_D:
+            self.move_right()
+
+        if key == Qt.Key.Key_W:
+            self.move_up()
+
+        if key == Qt.Key.Key_S:
+            self.move_down()
+
+    def move_left(self):
+        #TODO Figure out how to make the needed algorithm (Idk name)
+
+
+        print('\n')
+        for i in range(0, len(self.game_list), 4):
+            print(*self.game_list[i : i + 4])
+
+        
+
+    def move_right(self):
+        print('e')
+
+    def move_up(self):
+        print('l')
+
+    def move_down(self):
+        print('o')
 
 if __name__ == '__main__':
     main()
