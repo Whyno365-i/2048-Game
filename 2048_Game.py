@@ -30,7 +30,7 @@ class Game(QMainWindow):
 
         self.boxes= []
 
-        self.game_list= [0, 0, 4, 2,
+        self.game_list= [0, 0, 0, 0,
                          0, 0, 0, 0,
                          0, 0, 0, 0,
                          0, 0, 0, 0]
@@ -54,7 +54,7 @@ class Game(QMainWindow):
             #And add it to the game layout
             self.Game_layout.addWidget(n_box, x, y)
 
-        # self.spawn_square()
+        self.spawn_square()
 
     def spawn_square(self):
         self.box_number= random.randint(0, 15)
@@ -166,10 +166,11 @@ class Game(QMainWindow):
         for i in range(0, len(self.game_list), 4):
             print(*self.game_list[i : i + 4])
 
+        self.game_lines()
+
 
     #The name of the function matters in this case
     def keyPressEvent(self, event):
-        #TODO Figure out how you are going to make the game work
         key= event.key()
 
         if key == Qt.Key.Key_Left:
@@ -198,23 +199,109 @@ class Game(QMainWindow):
             self.move_down()
 
     def move_left(self):
-        #TODO Figure out how to make the needed algorithm (Idk name)
+        for n in range(len(self.rows)):
+            row= self.rows[n]
+            #You need range(len(nums)). You can just do in nums
+            x=0
+            for i in range(len(row)):
+                if row[i]:
+                    #Use line below to switch values
+                    row[x], row[i] = row[i], row[x]
+                    x+=1
+                    
 
+            for j in range(len(row)):
+                if row[j]:
+                    if row[j] == row[j+1]:
+                        row[j]= row[j] + row[j+1]
+                        row[j+1]=0
+
+            y=0
+            for i in range(len(row)):
+                if row[i]:
+                    #Use line below to switch values
+                    row[y], row[i] = row[i], row[y]
+                    y+=1
+            
+
+
+        self.update_game_rows()
 
         print('\n')
         for i in range(0, len(self.game_list), 4):
             print(*self.game_list[i : i + 4])
 
-        
 
     def move_right(self):
-        print('e')
+        for n in range(len(self.rows)):
+            row= self.rows[n]
+            x=len(row) -1
 
+            for i in range(len(row)-1, -1, -1):
+                if row[i]:
+                    #Use line below to switch values
+                    row[x], row[i] = row[i], row[x]
+                    x-=1
+
+            for j in range(len(row)):
+                if row[j]:
+                    try:
+                        if row[j] == row[j+1]:
+                            row[j]= row[j] + row[j+1]
+                            row[j+1]=0
+
+                    except IndexError:
+                        break
+
+            y=len(row) -1
+            for i in range(len(row)-1, -1, -1):
+                if row[i]:
+                    #Use line below to switch values
+                    row[y], row[i] = row[i], row[y]
+                    y-=1
+
+
+
+        self.update_game_rows()
+
+        print('\n')
+        for i in range(0, len(self.game_list), 4):
+            print(*self.game_list[i : i + 4])
+
+
+    #TODO Do up and down
     def move_up(self):
         print('l')
 
     def move_down(self):
         print('o')
+
+    def game_lines(self):
+        self.rows= [[self.game_list[0], self.game_list[1], self.game_list[2], self.game_list[3]],
+                    [self.game_list[4], self.game_list[5], self.game_list[6], self.game_list[7]],
+                    [self.game_list[8], self.game_list[9], self.game_list[10], self.game_list[11]],
+                    [self.game_list[12], self.game_list[13], self.game_list[14], self.game_list[15]]]
+
+        self.colmuns= [[self.game_list[0], self.game_list[4], self.game_list[8], self.game_list[12]],
+                       [self.game_list[1], self.game_list[5], self.game_list[9], self.game_list[13]],
+                       [self.game_list[2], self.game_list[6], self.game_list[10], self.game_list[14]],
+                       [self.game_list[3], self.game_list[7], self.game_list[11], self.game_list[15]]]
+
+
+    def update_game_rows(self):
+        one=0
+        two=1
+        three=2
+        four=3
+        for o, t, th, f in self.rows:
+            self.game_list[one] = o
+            self.game_list[two]= t
+            self.game_list[three]= th
+            self.game_list[four]= f
+            one+=4
+            two+=4
+            three+=4
+            four+=4
 
 if __name__ == '__main__':
     main()
