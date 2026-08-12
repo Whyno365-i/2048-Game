@@ -1,6 +1,6 @@
 import random
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QLabel
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QLabel, QPushButton, QHBoxLayout
+from PySide6.QtCore import Qt, QSize
 
 def main():
     app= QApplication()
@@ -14,6 +14,120 @@ class Game(QMainWindow):
         super().__init__()
         self.setWindowTitle('2048 Game')
         self.setFixedSize(700, 700)
+
+        #TODO Figure out how to make it end when you lose
+        #TODO Make Homescreen
+
+        self.two= '''
+                QLabel {
+                background: #FFFFC5;
+                border-radius: 4px;
+                border: 1px solid #000000;
+                color: #000000;
+                font: 40px;      
+                }
+'''
+
+        self.four= '''
+                QLabel {
+                background: #FFD580;
+                border-radius: 4px;
+                border: 1px solid #000000;
+                color: #000000;
+                font: 40px;      
+                }
+'''
+
+        self.eight= '''
+                QLabel {
+                background: #ffb09c;
+                border-radius: 4px;
+                border: 1px solid #000000;
+                color: #000000;
+                font: 40px;      
+                }
+'''
+
+        self.sixteen= '''
+                QLabel {
+                background: #FF5F15;
+                border-radius: 4px;
+                border: 1px solid #000000;
+                color: #000000;
+                font: 40px;      
+                }
+'''
+
+        self.thirty_two= '''
+                QLabel {
+                background: #DC143C;
+                border-radius: 4px;
+                border: 1px solid #000000;
+                color: #000000;
+                font: 40px;      
+                }
+'''
+
+        self.sixty_four= '''
+                QLabel {
+                background: #9B870C;
+                border-radius: 4px;
+                border: 1px solid #000000;
+                color: #000000;
+                font: 40px;      
+                }
+'''
+
+        self.hundred_twenty_eight= '''
+                QLabel {
+                background: #FFC0CB;
+                border-radius: 4px;
+                border: 1px solid #000000;
+                color: #000000;
+                font: 40px;      
+                }
+'''
+
+        self.thundred_fifty_six= '''
+                QLabel {
+                background: #8B0000;
+                border-radius: 4px;
+                border: 1px solid #000000;
+                color: #000000;
+                font: 40px;
+                }
+'''
+        self.fhundred_twelve= '''
+                QLabel {
+                background: #90bd71;
+                border-radius: 4px;
+                border: 1px solid #000000;
+                color: #000000;
+                font: 40px;
+                }
+'''
+
+        self.thousand_twenty_four= '''
+                QLabel {
+                background: #692b87;
+                border-radius: 4px;
+                border: 1px solid #000000;
+                color: #000000;
+                font: 40px;
+                }
+'''
+
+        self.tthousand_fourty_eight= '''
+                QLabel {
+                background: #21473f;
+                border-radius: 4px;
+                border: 1px solid #000000;
+                color: #000000;
+                font: 40px;
+                }
+'''
+
+
 
         self.Grid()
 
@@ -45,6 +159,7 @@ class Game(QMainWindow):
             #The you make the Label for this run through
             n_box= QLabel()
             #And style it
+            n_box.setText('')
             n_box.setStyleSheet('background: #696969; border-radius: 4px;')
 
             #Then you append that label to the list object
@@ -59,109 +174,38 @@ class Game(QMainWindow):
     def spawn_square(self):
         self.box_number= random.randint(0, 15)
 
-        self.box_number_2= random.randint(0, 15)
-
-        if self.box_number == self.box_number_2:
+        if not self.game_list[self.box_number] == 0:
             self.spawn_square()
             return
 
         add_box=self.boxes[self.box_number]
-
-        add_box_2=self.boxes[self.box_number_2]
 
         numbers= ['2', '4', '8']
         weights= [50, 40, 10]
 
         number= random.choices(numbers, weights=weights)[0]
 
-        number2= random.choices(numbers, weights=weights)[0]
-
-        print(number, number2, '\n')
+        print(number,'\n')
 
 
-        if number == '2' and add_box.text() == '':
+        if number == '2':
             add_box.setText('2')
             add_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            add_box.setStyleSheet('''
-                QLabel {
-                background: #FFFFC5;
-                border-radius: 4px;
-                border: 1px solid #000000;
-                color: #000000;
-                font: 40px;      
-                }
-''')
+            add_box.setStyleSheet(self.two)
             self.game_list[self.box_number] = 2 # type: ignore
 
-        if number2 == '2' and add_box_2.text() == '':
-            add_box_2.setText('2')
-            add_box_2.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            add_box_2.setStyleSheet('''
-                QLabel {
-                background: #FFFFC5;
-                border-radius: 4px;
-                border: 1px solid #000000;
-                color: #000000;
-                font: 40px;      
-                }
-''')
-            self.game_list[self.box_number_2] = 2 # type: ignore
-
-        if number == '4' and add_box.text() == '':
+        elif number == '4':
             add_box.setText('4')
             add_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            add_box.setStyleSheet('''
-                QLabel {
-                background: #FFD580;
-                border-radius: 4px;
-                border: 1px solid #000000;
-                color: #000000;
-                font: 40px;      
-                }
-''')
+            add_box.setStyleSheet(self.four)
             self.game_list[self.box_number] = 4 # type: ignore
 
-        if number2 == '4' and add_box_2.text() == '':
-            add_box_2.setText('4')
-            add_box_2.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            add_box_2.setStyleSheet('''
-                QLabel {
-                background: #FFD580;
-                border-radius: 4px;
-                border: 1px solid #000000;
-                color: #000000;
-                font: 40px;      
-                }
-''')
-            self.game_list[self.box_number_2] = 4 # type: ignore
-
-        if number == '8' and add_box.text() == '':
+        elif number == '8':
             add_box.setText('8')
             add_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            add_box.setStyleSheet('''
-                QLabel {
-                background: #ffb09c;
-                border-radius: 4px;
-                border: 1px solid #000000;
-                color: #000000;
-                font: 40px;      
-                }
-''')
+            add_box.setStyleSheet(self.eight)
             self.game_list[self.box_number] = 8 # type: ignore
 
-        if number2 == '8' and add_box_2.text() == '':
-            add_box_2.setText('8')
-            add_box_2.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            add_box_2.setStyleSheet('''
-                QLabel {
-                background: #ffb09c;
-                border-radius: 4px;
-                border: 1px solid #000000;
-                color: #000000;
-                font: 40px;      
-                }
-''')
-            self.game_list[self.box_number_2] = 8 # type: ignore
 
         for i in range(0, len(self.game_list), 4):
             print(*self.game_list[i : i + 4])
@@ -212,10 +256,13 @@ class Game(QMainWindow):
 
             for j in range(len(row)):
                 if row[j]:
-                    if row[j] == row[j+1]:
-                        row[j]= row[j] + row[j+1]
-                        row[j+1]=0
+                    try:
+                        if row[j] == row[j+1]:
+                            row[j]= row[j] + row[j+1]
+                            row[j+1]=0
 
+                    except IndexError:
+                        break
             y=0
             for i in range(len(row)):
                 if row[i]:
@@ -224,7 +271,8 @@ class Game(QMainWindow):
                     y+=1
             
 
-
+        x=0
+        y=0
         self.update_game_rows()
 
         print('\n')
@@ -243,12 +291,12 @@ class Game(QMainWindow):
                     row[x], row[i] = row[i], row[x]
                     x-=1
 
-            for j in range(len(row)):
+            for j in range(len(row)-1, -1, -1):
                 if row[j]:
                     try:
-                        if row[j] == row[j+1]:
-                            row[j]= row[j] + row[j+1]
-                            row[j+1]=0
+                        if row[j] == row[j-1]:
+                            row[j]= row[j] + row[j-1]
+                            row[j-1]=0
 
                     except IndexError:
                         break
@@ -261,7 +309,8 @@ class Game(QMainWindow):
                     y-=1
 
 
-
+        x=0
+        y=0
         self.update_game_rows()
 
         print('\n')
@@ -269,12 +318,80 @@ class Game(QMainWindow):
             print(*self.game_list[i : i + 4])
 
 
-    #TODO Do up and down
     def move_up(self):
-        print('l')
+        for n in range(len(self.colmuns)):
+            colmun= self.colmuns[n]
+            #You need range(len(nums)). You can just do in nums
+            x=0
+            for i in range(len(colmun)):
+                if colmun[i]:
+                    #Use line below to switch values
+                    colmun[x], colmun[i] = colmun[i], colmun[x]
+                    x+=1
+                    
+
+            for j in range(len(colmun)):
+                if colmun[j]:
+                    try:
+                        if colmun[j] == colmun[j+1]:
+                            colmun[j]= colmun[j] + colmun[j+1]
+                            colmun[j+1]=0
+
+                    except IndexError:
+                        break
+
+            y=0
+            for i in range(len(colmun)):
+                if colmun[i]:
+                    #Use line below to switch values
+                    colmun[y], colmun[i] = colmun[i], colmun[y]
+                    y+=1
+            
+
+        x=0
+        y=0
+        self.update_game_colmuns()
+
+        print('\n')
+        for i in range(0, len(self.game_list), 4):
+            print(*self.game_list[i : i + 4])
 
     def move_down(self):
-        print('o')
+        for n in range(len(self.colmuns)):
+            colmun= self.colmuns[n]
+            x=len(colmun) -1
+
+            for i in range(len(colmun)-1, -1, -1):
+                if colmun[i]:
+                    #Use line below to switch values
+                    colmun[x], colmun[i] = colmun[i], colmun[x]
+                    x-=1
+
+            for j in range(len(colmun)-1, -1, -1):
+                if colmun[j]:
+                    try:
+                        if colmun[j] == colmun[j-1]:
+                            colmun[j]= colmun[j] + colmun[j-1]
+                            colmun[j-1]=0
+
+                    except IndexError:
+                        break
+
+            y=len(colmun) -1
+            for i in range(len(colmun)-1, -1, -1):
+                if colmun[i]:
+                    #Use line below to switch values
+                    colmun[y], colmun[i] = colmun[i], colmun[y]
+                    y-=1
+
+
+        x=0
+        y=0
+        self.update_game_colmuns()
+
+        print('\n')
+        for i in range(0, len(self.game_list), 4):
+            print(*self.game_list[i : i + 4])
 
     def game_lines(self):
         self.rows= [[self.game_list[0], self.game_list[1], self.game_list[2], self.game_list[3]],
@@ -302,6 +419,139 @@ class Game(QMainWindow):
             two+=4
             three+=4
             four+=4
+
+        self.game_lines()
+        self.spawn_square()
+        self.game_lines()
+        self.update_squares()
+
+    def update_game_colmuns(self):
+        one=0
+        two=4
+        three=8
+        four=12
+        for o, t, th, f in self.colmuns:
+            self.game_list[one] = o
+            self.game_list[two]= t
+            self.game_list[three]= th
+            self.game_list[four]= f
+            one+=1
+            two+=1
+            three+=1
+            four+=1
+
+        self.game_lines()
+        self.spawn_square()
+        self.game_lines()
+        self.update_squares()
+
+    def update_squares(self):
+        print(self.game_list)
+        for i in range(len(self.boxes)):
+            self.boxes[i].setStyleSheet('background: #696969; border-radius: 4px;')
+            self.boxes[i].setText('')
+
+        for i in range(len(self.game_list)):
+            current_box= self.boxes[i]
+
+            if self.game_list[i] == 2:
+                current_box.setText('2')
+                current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                current_box.setStyleSheet(self.two)
+
+            if self.game_list[i] == 4:
+                current_box.setText('4')
+                current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                current_box.setStyleSheet(self.four)
+
+            if self.game_list[i] == 8:
+                current_box.setText('8')
+                current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                current_box.setStyleSheet(self.eight)
+
+            if self.game_list[i] == 16:
+                current_box.setText('16')
+                current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                current_box.setStyleSheet(self.sixteen)
+
+            if self.game_list[i] == 32:
+                current_box.setText('32')
+                current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                current_box.setStyleSheet(self.thirty_two)
+
+            if self.game_list[i] == 64:
+                current_box.setText('64')
+                current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                current_box.setStyleSheet(self.sixty_four)
+
+            if self.game_list[i] == 128:
+                current_box.setText('128')
+                current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                current_box.setStyleSheet(self.hundred_twenty_eight)
+
+            if self.game_list[i] == 256:
+                current_box.setText('256')
+                current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                current_box.setStyleSheet(self.thundred_fifty_six)
+
+            if self.game_list[i] == 512:
+                current_box.setText('512')
+                current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                current_box.setStyleSheet(self.fhundred_twelve)
+
+            if self.game_list[i] == 1024:
+                current_box.setText('1024')
+                current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                current_box.setStyleSheet(self.thousand_twenty_four)
+
+            if self.game_list[i] == 2048:
+                current_box.setText('2048')
+                current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                current_box.setStyleSheet(self.tthousand_fourty_eight)
+                self.win_game()
+
+    def win_game(self):
+        for i in range(len(self.boxes)):
+            self.boxes[i].hide()
+
+        win_msg= QLabel('You Won!')
+        win_msg.setFixedSize(QSize(300, 100))
+        win_msg.setStyleSheet('''
+            QLabel {
+            background: #FFFFFF;
+            color: #000000;
+            font: 40px;
+            border: 5px solid #000000;
+            }
+''')
+        win_msg.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        leave= QPushButton('Back To Homescreen')
+        leave.setFixedSize(QSize(200, 100))
+        leave.setStyleSheet('''
+            QPushButton {
+                background: #696969;
+                color: #000000;
+                border-radius: 4px;
+                border: 1px solid #000000;
+                font: 20px;
+            }
+
+            QPushButton:hover {
+                background: #B0B0B0;
+            }
+
+''')
+        leave.clicked.connect(self.close)
+        
+        button_layout= QHBoxLayout()
+
+        button_layout.addSpacing(4)
+        button_layout.addWidget(leave)
+
+
+        self.Game_layout.addWidget(win_msg, 1, 1)
+        self.Game_layout.addLayout(button_layout, 2, 1)
 
 if __name__ == '__main__':
     main()
