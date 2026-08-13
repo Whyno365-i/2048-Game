@@ -15,7 +15,7 @@ class Game(QMainWindow):
         self.setWindowTitle('2048 Game')
         self.setFixedSize(700, 700)
 
-        #TODO Figure out how to make it end when you lose
+        #TODO Fix recursion error so you can end the game
         #TODO Make Homescreen
 
         self.two= '''
@@ -172,7 +172,16 @@ class Game(QMainWindow):
         self.spawn_square()
 
     def spawn_square(self):
-        self.box_number= random.randint(0, 15)
+
+
+        try:
+            self.game_lines()
+            self.lose_game()
+            self.box_number= random.randint(0, 15)
+
+        except RecursionError:
+            self.lose_game()
+
 
         if not self.game_list[self.box_number] == 0:
             self.spawn_square()
@@ -184,9 +193,6 @@ class Game(QMainWindow):
         weights= [50, 40, 10]
 
         number= random.choices(numbers, weights=weights)[0]
-
-        print(number,'\n')
-
 
         if number == '2':
             add_box.setText('2')
@@ -253,16 +259,19 @@ class Game(QMainWindow):
                     row[x], row[i] = row[i], row[x]
                     x+=1
                     
-
+            #To understand it get a sheet of paper and write it out
             for j in range(len(row)):
                 if row[j]:
                     try:
-                        if row[j] == row[j+1]:
-                            row[j]= row[j] + row[j+1]
-                            row[j+1]=0
+                        if row[j] == row[j-1]:
+                            row[j-1]= row[j] + row[j-1]
+                            row[j]=0
 
                     except IndexError:
-                        break
+                        pass
+
+                    except RecursionError:
+                        pass
             y=0
             for i in range(len(row)):
                 if row[i]:
@@ -291,15 +300,19 @@ class Game(QMainWindow):
                     row[x], row[i] = row[i], row[x]
                     x-=1
 
+            #To figure out write it out
             for j in range(len(row)-1, -1, -1):
                 if row[j]:
                     try:
-                        if row[j] == row[j-1]:
-                            row[j]= row[j] + row[j-1]
-                            row[j-1]=0
+                        if row[j] == row[j+1]:
+                            row[j]= row[j] + row[j+1]
+                            row[j+1]=0
 
                     except IndexError:
-                        break
+                        pass
+
+                    except RecursionError:
+                        pass
 
             y=len(row) -1
             for i in range(len(row)-1, -1, -1):
@@ -333,12 +346,15 @@ class Game(QMainWindow):
             for j in range(len(colmun)):
                 if colmun[j]:
                     try:
-                        if colmun[j] == colmun[j+1]:
-                            colmun[j]= colmun[j] + colmun[j+1]
-                            colmun[j+1]=0
+                        if colmun[j] == colmun[j-1]:
+                            colmun[j-1]= colmun[j] + colmun[j-1]
+                            colmun[j]=0
 
                     except IndexError:
-                        break
+                        pass
+
+                    except RecursionError:
+                        pass
 
             y=0
             for i in range(len(colmun)):
@@ -370,12 +386,15 @@ class Game(QMainWindow):
             for j in range(len(colmun)-1, -1, -1):
                 if colmun[j]:
                     try:
-                        if colmun[j] == colmun[j-1]:
-                            colmun[j]= colmun[j] + colmun[j-1]
-                            colmun[j-1]=0
+                        if colmun[j] == colmun[j+1]:
+                            colmun[j+1]= colmun[j] + colmun[j+1]
+                            colmun[j]=0
 
                     except IndexError:
-                        break
+                        pass
+
+                    except RecursionError:
+                        pass
 
             y=len(colmun) -1
             for i in range(len(colmun)-1, -1, -1):
@@ -421,6 +440,7 @@ class Game(QMainWindow):
             four+=4
 
         self.game_lines()
+        self.lose_game()
         self.spawn_square()
         self.game_lines()
         self.update_squares()
@@ -440,13 +460,14 @@ class Game(QMainWindow):
             three+=1
             four+=1
 
+
         self.game_lines()
+        self.lose_game()
         self.spawn_square()
         self.game_lines()
         self.update_squares()
 
     def update_squares(self):
-        print(self.game_list)
         for i in range(len(self.boxes)):
             self.boxes[i].setStyleSheet('background: #696969; border-radius: 4px;')
             self.boxes[i].setText('')
@@ -552,6 +573,85 @@ class Game(QMainWindow):
 
         self.Game_layout.addWidget(win_msg, 1, 1)
         self.Game_layout.addLayout(button_layout, 2, 1)
+
+    def lose_game(self):
+        x=0
+        one= False
+        two= False
+        three= False
+        four= False
+        for i in range(len(self.boxes)):
+            if not len(self.boxes[i].text()) == 0:
+                x+=1
+
+        self.rows_2= self.rows
+        self.colmuns_2= self.colmuns
+
+        if x == 16:
+            for n in range(len(self.rows_2)):
+                row= self.rows_2[n]
+                colmun= self.colmuns_2[n]
+
+                #left check
+                for j in range(len(row)):
+                    if row[j]:
+                        try:
+                            if row[j] == row[j-1]:
+                                row[j-1]= row[j] + row[j-1]
+                                row[j]=0
+
+                        except IndexError:
+                            pass
+
+                        except RecursionError:
+                            one=True        
+
+                #right check
+                for j in range(len(row)-1, -1, -1):
+                    if row[j]:
+                        try:
+                            if row[j] == row[j+1]:
+                                row[j]= row[j] + row[j+1]
+                                row[j+1]=0
+
+                        except IndexError:
+                            pass
+
+                        except RecursionError:
+                            two= True
+
+                #up check
+                for j in range(len(colmun)):
+                    if colmun[j]:
+                        try:
+                            if colmun[j] == colmun[j-1]:
+                                colmun[j-1]= colmun[j] + colmun[j-1]
+                                colmun[j]=0
+
+                        except IndexError:
+                            pass
+
+                        except RecursionError:
+                            three= True
+
+                #down check
+                for j in range(len(colmun)-1, -1, -1):
+                    if colmun[j]:
+                        try:
+                            if colmun[j] == colmun[j+1]:
+                                colmun[j+1]= colmun[j] + colmun[j+1]
+                                colmun[j]=0
+
+                        except IndexError:
+                            pass
+
+                        except RecursionError:
+                            four=True
+
+        if one == True and two == True and three == True and four == True:
+            self.close()
+
+        
 
 if __name__ == '__main__':
     main()
