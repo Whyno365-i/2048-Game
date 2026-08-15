@@ -172,52 +172,47 @@ class Game(QMainWindow):
         self.spawn_square()
 
     def spawn_square(self):
-
-
         try:
-            self.game_lines()
-            self.lose_game()
             self.box_number= random.randint(0, 15)
+
+
+            if not self.game_list[self.box_number] == 0:
+                self.spawn_square()
+                return
+
+            add_box=self.boxes[self.box_number]
+
+            numbers= ['2', '4', '8']
+            weights= [50, 40, 10]
+
+            number= random.choices(numbers, weights=weights)[0]
+
+            if number == '2':
+                add_box.setText('2')
+                add_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                add_box.setStyleSheet(self.two)
+                self.game_list[self.box_number] = 2 # type: ignore
+
+            elif number == '4':
+                add_box.setText('4')
+                add_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                add_box.setStyleSheet(self.four)
+                self.game_list[self.box_number] = 4 # type: ignore
+
+            elif number == '8':
+                add_box.setText('8')
+                add_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                add_box.setStyleSheet(self.eight)
+                self.game_list[self.box_number] = 8 # type: ignore
+
+
+            for i in range(0, len(self.game_list), 4):
+                print(*self.game_list[i : i + 4])
+
+            self.game_lines()
 
         except RecursionError:
             self.lose_game()
-
-
-        if not self.game_list[self.box_number] == 0:
-            self.spawn_square()
-            return
-
-        add_box=self.boxes[self.box_number]
-
-        numbers= ['2', '4', '8']
-        weights= [50, 40, 10]
-
-        number= random.choices(numbers, weights=weights)[0]
-
-        if number == '2':
-            add_box.setText('2')
-            add_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            add_box.setStyleSheet(self.two)
-            self.game_list[self.box_number] = 2 # type: ignore
-
-        elif number == '4':
-            add_box.setText('4')
-            add_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            add_box.setStyleSheet(self.four)
-            self.game_list[self.box_number] = 4 # type: ignore
-
-        elif number == '8':
-            add_box.setText('8')
-            add_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            add_box.setStyleSheet(self.eight)
-            self.game_list[self.box_number] = 8 # type: ignore
-
-
-        for i in range(0, len(self.game_list), 4):
-            print(*self.game_list[i : i + 4])
-
-        self.game_lines()
-
 
     #The name of the function matters in this case
     def keyPressEvent(self, event):
@@ -270,8 +265,6 @@ class Game(QMainWindow):
                     except IndexError:
                         pass
 
-                    except RecursionError:
-                        pass
             y=0
             for i in range(len(row)):
                 if row[i]:
@@ -311,8 +304,6 @@ class Game(QMainWindow):
                     except IndexError:
                         pass
 
-                    except RecursionError:
-                        pass
 
             y=len(row) -1
             for i in range(len(row)-1, -1, -1):
@@ -353,8 +344,7 @@ class Game(QMainWindow):
                     except IndexError:
                         pass
 
-                    except RecursionError:
-                        pass
+
 
             y=0
             for i in range(len(colmun)):
@@ -391,9 +381,6 @@ class Game(QMainWindow):
                             colmun[j]=0
 
                     except IndexError:
-                        pass
-
-                    except RecursionError:
                         pass
 
             y=len(colmun) -1
@@ -439,8 +426,7 @@ class Game(QMainWindow):
             three+=4
             four+=4
 
-        self.game_lines()
-        self.lose_game()
+
         self.spawn_square()
         self.game_lines()
         self.update_squares()
@@ -461,8 +447,6 @@ class Game(QMainWindow):
             four+=1
 
 
-        self.game_lines()
-        self.lose_game()
         self.spawn_square()
         self.game_lines()
         self.update_squares()
@@ -576,10 +560,6 @@ class Game(QMainWindow):
 
     def lose_game(self):
         x=0
-        one= False
-        two= False
-        three= False
-        four= False
         for i in range(len(self.boxes)):
             if not len(self.boxes[i].text()) == 0:
                 x+=1
@@ -593,6 +573,14 @@ class Game(QMainWindow):
                 colmun= self.colmuns_2[n]
 
                 #left check
+                x=0
+                for i in range(len(row)):
+                    if row[i]:
+                        #Use line below to switch values
+                        row[x], row[i] = row[i], row[x]
+                        x+=1
+                        
+                #To understand it get a sheet of paper and write it out
                 for j in range(len(row)):
                     if row[j]:
                         try:
@@ -603,10 +591,24 @@ class Game(QMainWindow):
                         except IndexError:
                             pass
 
-                        except RecursionError:
-                            one=True        
+                y=0
+                for i in range(len(row)):
+                    if row[i]:
+                        #Use line below to switch values
+                        row[y], row[i] = row[i], row[y]
+                        y+=1
+                
 
                 #right check
+                z=len(row) -1
+
+                for i in range(len(row)-1, -1, -1):
+                    if row[i]:
+                        #Use line below to switch values
+                        row[z], row[i] = row[i], row[z]
+                        z-=1
+
+                #To figure out write it out
                 for j in range(len(row)-1, -1, -1):
                     if row[j]:
                         try:
@@ -617,10 +619,24 @@ class Game(QMainWindow):
                         except IndexError:
                             pass
 
-                        except RecursionError:
-                            two= True
+
+                A=len(row) -1
+                for i in range(len(row)-1, -1, -1):
+                    if row[i]:
+                        #Use line below to switch values
+                        row[A], row[i] = row[i], row[A]
+                        y-=1
+
 
                 #up check
+                b=0
+                for i in range(len(colmun)):
+                    if colmun[i]:
+                        #Use line below to switch values
+                        colmun[b], colmun[i] = colmun[i], colmun[b]
+                        b+=1
+                        
+
                 for j in range(len(colmun)):
                     if colmun[j]:
                         try:
@@ -631,10 +647,25 @@ class Game(QMainWindow):
                         except IndexError:
                             pass
 
-                        except RecursionError:
-                            three= True
+
+
+                c=0
+                for i in range(len(colmun)):
+                    if colmun[i]:
+                        #Use line below to switch values
+                        colmun[c], colmun[i] = colmun[i], colmun[c]
+                        c+=1
+
 
                 #down check
+                D=len(colmun) -1
+
+                for i in range(len(colmun)-1, -1, -1):
+                    if colmun[i]:
+                        #Use line below to switch values
+                        colmun[D], colmun[i] = colmun[i], colmun[D]
+                        x-=1
+
                 for j in range(len(colmun)-1, -1, -1):
                     if colmun[j]:
                         try:
@@ -645,11 +676,21 @@ class Game(QMainWindow):
                         except IndexError:
                             pass
 
-                        except RecursionError:
-                            four=True
+                E=len(colmun) -1
+                for i in range(len(colmun)-1, -1, -1):
+                    if colmun[i]:
+                        #Use line below to switch values
+                        colmun[E], colmun[i] = colmun[i], colmun[E]
 
-        if one == True and two == True and three == True and four == True:
-            self.close()
+                        y-=1
+
+                print(self.rows_2)
+
+            #TODO fix bug
+
+            if self.rows == self.rows_2 and self.colmuns == self.colmuns_2:
+                self.close()
+
 
         
 
