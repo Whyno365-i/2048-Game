@@ -15,8 +15,7 @@ class Game(QMainWindow):
         self.setWindowTitle('2048 Game')
         self.setFixedSize(700, 700)
 
-        #TODO Fix recursion error so you can end the game
-        #TODO Make Homescreen
+        #TODO Make the different formats work
 
         self.two= '''
                 QLabel {
@@ -129,7 +128,150 @@ class Game(QMainWindow):
 
 
 
-        self.Grid()
+        self.homescreen()
+
+    def homescreen(self):
+        self.home_container= QWidget()
+        self.setCentralWidget(self.home_container)
+        self.home_container.setStyleSheet('background: #FFFFC5;')
+        self.home_layout= QGridLayout(self.home_container)
+
+
+        title= QLabel('2048 Game')
+        title.setFixedHeight(50)
+        title.setWordWrap(True)
+        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        title.setStyleSheet('''
+            QLabel {
+            font: 50px;
+            }
+''')
+
+        self.four_grid= QPushButton('4x4 Grid')
+        self.four_grid.setFixedSize(QSize(200, 100))
+        self.four_grid.setStyleSheet('''
+            QPushButton {
+                background: #FFD580;
+                font: 30px;
+                border: 1px solid #000000;
+                border-radius: 10px;
+            }
+
+            QPushButton:hover {
+                background: #FFE5B2;
+            }
+''')
+
+
+        self.five_grid= QPushButton('5x5 Grid')
+        self.five_grid.setFixedSize(QSize(200, 100))
+        self.five_grid.setStyleSheet('''
+            QPushButton {
+                background: #ffb09c;
+                font: 30px;
+                border: 1px solid #000000;
+                border-radius: 10px;
+            }
+
+            QPushButton:hover {
+                background: #ffbfaf;
+            }
+''')
+
+        self.six_grid= QPushButton('6x6 Grid')
+        self.six_grid.setFixedSize(QSize(200, 100))
+        self.six_grid.setStyleSheet('''
+            QPushButton {
+                background: #FF5F15;
+                font: 30px;
+                border: 1px solid #000000;
+                border-radius: 10px;
+            }
+
+            QPushButton:hover {
+                background: #FF8C57;
+            }
+''')
+
+
+        exit= QPushButton('Exit')
+        exit.setFixedSize(QSize(200, 50))
+        exit.setStyleSheet('''
+            QPushButton {
+                background: #DC143C;
+                font: 30px;
+                border: 1px solid #000000;
+                border-radius: 10px;
+            }
+
+            QPushButton:hover {
+                background: #EB595F;
+            }
+''')
+
+
+
+        #The first two numbers are the rows and colmuns the nthe next two numbers are
+        #rowspan and colmunspan
+        self.home_layout.addWidget(title, 1, 1, 1, 3)
+        self.home_layout.addWidget(self.four_grid, 2, 1)
+        self.home_layout.addWidget(self.five_grid, 2, 2)
+        self.home_layout.addWidget(self.six_grid, 2, 3)
+        self.home_layout.addWidget(exit, 3, 2)
+
+
+        self.four_grid.clicked.connect(lambda: self.grid_list_choose(self.four_grid))
+        self.five_grid.clicked.connect(lambda: self.grid_list_choose(self.five_grid))
+        self.six_grid.clicked.connect(lambda: self.grid_list_choose(self.six_grid))
+        exit.clicked.connect(self.close)
+
+    def grid_list_choose(self, number):
+        if number == self.four_grid:
+            self.Grid_list= [(0, 0), (0, 1), (0, 2), (0, 3),
+                            (1, 0), (1, 1), (1, 2), (1, 3),
+                            (2, 0), (2, 1), (2, 2), (2, 3),
+                            (3, 0), (3, 1), (3, 2), (3, 3)]
+
+            self.game_list= [0, 0, 0, 0,
+                            0, 0, 0, 0,
+                            0, 0, 0, 0,
+                            0, 0, 0, 0]
+
+            self.Grid()
+
+        if number == self.five_grid:
+            self.Grid_list= [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4),
+                            (1, 0), (1, 1), (1, 2), (1, 3), (1, 4),
+                            (2, 0), (2, 1), (2, 2), (2, 3), (2, 4),
+                            (3, 0), (3, 1), (3, 2), (3, 3), (3, 4),
+                            (4, 0), (4, 1), (4, 2), (4, 3), (4, 4)]
+
+            self.game_list= [0, 0, 0, 0, 0,
+                            0, 0, 0, 0, 0,
+                            0, 0, 0, 0, 0,
+                            0, 0, 0, 0, 0,
+                            0, 0, 0, 0, 0]
+
+            self.Grid()
+
+        if number == self.six_grid:
+            self.Grid_list= [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5),
+                            (1, 0), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5),
+                            (2, 0), (2, 1), (2, 2), (2, 3), (2, 4), (2, 5),
+                            (3, 0), (3, 1), (3, 2), (3, 3), (3, 4), (3, 5),
+                            (4, 0), (4, 1), (4, 2), (4, 3), (4, 4), (4, 5),
+                            (5, 0), (5, 1), (5, 2), (5, 3), (5, 4), (5, 5)]
+
+            self.game_list= [0, 0, 0, 0, 0, 0,
+                            0, 0, 0, 0, 0, 0,
+                            0, 0, 0, 0, 0, 0,
+                            0, 0, 0, 0, 0, 0,
+                            0, 0, 0, 0, 0, 0,
+                            0, 0, 0, 0, 0, 0]
+
+
+            self.Grid()
+
 
     def Grid(self):
         self.Game_container= QWidget()
@@ -137,24 +279,14 @@ class Game(QMainWindow):
         self.Game_container.setStyleSheet('background: #FFFFFF')
         self.Game_layout= QGridLayout(self.Game_container)
 
-        Grid_list= [(0, 0), (0, 1), (0, 2), (0, 3),
-                    (1, 0), (1, 1), (1, 2), (1, 3),
-                    (2, 0), (2, 1), (2, 2), (2, 3),
-                    (3, 0), (3, 1), (3, 2), (3, 3)]
-
         self.boxes= []
-
-        self.game_list= [0, 0, 0, 0,
-                         0, 0, 0, 0,
-                         0, 0, 0, 0,
-                         0, 0, 0, 0]
 
         for i in range(0, len(self.game_list), 4):
             print(*self.game_list[i : i + 4])
 
 
         #How this work is that you make a list object first
-        for x, y in Grid_list:
+        for x, y in self.Grid_list:
 
             #The you make the Label for this run through
             n_box= QLabel()
@@ -172,7 +304,7 @@ class Game(QMainWindow):
         self.spawn_square()
 
     def spawn_square(self):
-        self.box_number= random.randint(0, 15)
+        self.box_number= random.randint(0, len(self.boxes))
 
         if not self.game_list[self.box_number] == 0:
             self.spawn_square()
@@ -293,9 +425,9 @@ class Game(QMainWindow):
                 #To figure out write it out
                 for j in range(len(row)-1, -1, -1):
                     if row[j] and j+1 < len(row):
-                        if row[j] == row[j+1]:
-                            row[j]= row[j] + row[j+1]
-                            row[j+1]=0
+                            if row[j] == row[j+1]:
+                                row[j+1]= row[j] + row[j+1]
+                                row[j]=0
 
 
                 y=len(row) -1
@@ -371,13 +503,10 @@ class Game(QMainWindow):
 
                 for j in range(len(colmun)-1, -1, -1):
                     if colmun[j] and j+1 < len(colmun):
-                        try:
                             if colmun[j] == colmun[j+1]:
                                 colmun[j+1]= colmun[j] + colmun[j+1]
                                 colmun[j]=0
 
-                        except IndexError:
-                            pass
 
                 y=len(colmun) -1
                 for i in range(len(colmun)-1, -1, -1):
