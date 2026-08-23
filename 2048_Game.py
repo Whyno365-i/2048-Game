@@ -15,6 +15,8 @@ class Game(QMainWindow):
         self.setWindowTitle('2048 Game')
         self.setFixedSize(700, 700)
 
+        self.mode= None
+
         #TODO Make the different formats work
 
         self.two= '''
@@ -232,6 +234,8 @@ class Game(QMainWindow):
                             (2, 0), (2, 1), (2, 2), (2, 3),
                             (3, 0), (3, 1), (3, 2), (3, 3)]
 
+            self.mode= 4
+
             self.game_list= [0, 0, 0, 0,
                             0, 0, 0, 0,
                             0, 0, 0, 0,
@@ -245,6 +249,8 @@ class Game(QMainWindow):
                             (2, 0), (2, 1), (2, 2), (2, 3), (2, 4),
                             (3, 0), (3, 1), (3, 2), (3, 3), (3, 4),
                             (4, 0), (4, 1), (4, 2), (4, 3), (4, 4)]
+
+            self.mode= 5
 
             self.game_list= [0, 0, 0, 0, 0,
                             0, 0, 0, 0, 0,
@@ -261,6 +267,8 @@ class Game(QMainWindow):
                             (3, 0), (3, 1), (3, 2), (3, 3), (3, 4), (3, 5),
                             (4, 0), (4, 1), (4, 2), (4, 3), (4, 4), (4, 5),
                             (5, 0), (5, 1), (5, 2), (5, 3), (5, 4), (5, 5)]
+
+            self.mode= 6
 
             self.game_list= [0, 0, 0, 0, 0, 0,
                             0, 0, 0, 0, 0, 0,
@@ -304,7 +312,7 @@ class Game(QMainWindow):
         self.spawn_square()
 
     def spawn_square(self):
-        self.box_number= random.randint(0, len(self.boxes))
+        self.box_number= random.randint(0, len(self.boxes)-1)
 
         if not self.game_list[self.box_number] == 0:
             self.spawn_square()
@@ -528,6 +536,16 @@ class Game(QMainWindow):
             print(*self.game_list[i : i + 4])
 
     def game_lines(self):
+        if self.mode == 4:
+            self.lines_four()
+
+        if self.mode == 5:
+            self.lines_five()
+
+        if self.mode == 6:
+            self.lines_six()
+
+    def lines_four(self):
         self.rows= [[self.game_list[0], self.game_list[1], self.game_list[2], self.game_list[3]],
                     [self.game_list[4], self.game_list[5], self.game_list[6], self.game_list[7]],
                     [self.game_list[8], self.game_list[9], self.game_list[10], self.game_list[11]],
@@ -538,8 +556,47 @@ class Game(QMainWindow):
                        [self.game_list[2], self.game_list[6], self.game_list[10], self.game_list[14]],
                        [self.game_list[3], self.game_list[7], self.game_list[11], self.game_list[15]]]
 
+    def lines_five(self):
+        self.rows= [[self.game_list[0], self.game_list[1], self.game_list[2], self.game_list[3], self.game_list[4]],
+                    [self.game_list[5], self.game_list[6], self.game_list[7], self.game_list[8], self.game_list[9]],
+                    [self.game_list[10], self.game_list[11], self.game_list[12], self.game_list[13], self.game_list[14]], 
+                    [self.game_list[15], self.game_list[16], self.game_list[17], self.game_list[18], self.game_list[19]],
+                    [self.game_list[20], self.game_list[21], self.game_list[22], self.game_list[23], self.game_list[24]]]
+
+        self.colmuns=   [[self.game_list[0], self.game_list[5], self.game_list[10], self.game_list[15], self.game_list[20]],
+                        [self.game_list[1], self.game_list[6], self.game_list[11], self.game_list[16], self.game_list[21]],
+                        [self.game_list[2], self.game_list[7], self.game_list[12], self.game_list[17], self.game_list[22]], 
+                        [self.game_list[3], self.game_list[8], self.game_list[13], self.game_list[18], self.game_list[23]],
+                        [self.game_list[4], self.game_list[9], self.game_list[14], self.game_list[19], self.game_list[24]]]
+
+    def lines_six(self):
+        self.rows= [[self.game_list[0], self.game_list[1], self.game_list[2], self.game_list[3], self.game_list[4], self.game_list[5]], 
+                    [self.game_list[6], self.game_list[7], self.game_list[8], self.game_list[9], self.game_list[10], self.game_list[11]],
+                    [self.game_list[12], self.game_list[13], self.game_list[14], self.game_list[15], self.game_list[16], self.game_list[17]], 
+                    [self.game_list[18], self.game_list[19], self.game_list[20], self.game_list[21], self.game_list[22], self.game_list[23]],
+                    [self.game_list[24], self.game_list[25], self.game_list[26], self.game_list[27], self.game_list[28], self.game_list[29]],
+                    [self.game_list[30], self.game_list[31], self.game_list[32], self.game_list[33], self.game_list[34], self.game_list[35]]]
+
+        self.colmuns=  [[self.game_list[0], self.game_list[6], self.game_list[12], self.game_list[18], self.game_list[24], self.game_list[30]], 
+                        [self.game_list[1], self.game_list[7], self.game_list[13], self.game_list[19], self.game_list[25], self.game_list[31]],
+                        [self.game_list[2], self.game_list[8], self.game_list[14], self.game_list[20], self.game_list[26], self.game_list[32]], 
+                        [self.game_list[3], self.game_list[9], self.game_list[15], self.game_list[21], self.game_list[27], self.game_list[33]],
+                        [self.game_list[4], self.game_list[10], self.game_list[16], self.game_list[22], self.game_list[28], self.game_list[34]],
+                        [self.game_list[5], self.game_list[11], self.game_list[17], self.game_list[23], self.game_list[29], self.game_list[35]]]
+
+
 
     def update_game_rows(self):
+        if self.mode == 4:
+            self.update_four_row()
+
+        if self.mode == 5:
+            self.update_five_row()
+
+        if self.mode == 6:
+            self.update_six_row()
+
+    def update_four_row(self):
         one=0
         two=1
         three=2
@@ -559,7 +616,67 @@ class Game(QMainWindow):
         self.game_lines()
         self.update_squares()
 
+    def update_five_row(self):
+        one=0
+        two=1
+        three=2
+        four=3
+        five= 4
+        for o, t, th, f, fi in self.rows:
+            self.game_list[one] = o
+            self.game_list[two]= t
+            self.game_list[three]= th
+            self.game_list[four]= f
+            self.game_list[five]= fi
+            one+=5
+            two+=5
+            three+=5
+            four+=5
+            five+=5
+
+        self.spawn_square()
+        self.game_lines()
+        self.update_squares()
+
+
+    def update_six_row(self):
+        one=0
+        two=1
+        three=2
+        four=3
+        five= 4
+        six= 5
+        for o, t, th, f, fi, s in self.rows:
+            self.game_list[one] = o
+            self.game_list[two]= t
+            self.game_list[three]= th
+            self.game_list[four]= f
+            self.game_list[five]= fi
+            self.game_list[six]= s
+            one+=6
+            two+=6
+            three+=6
+            four+=6
+            five+=6
+            six+=6
+
+        self.spawn_square()
+        self.game_lines()
+        self.update_squares()
+    
+
+
     def update_game_colmuns(self):
+        if self.mode == 4:
+            self.update_four_col()
+
+        if self.mode == 5:
+            self.update_five_col()
+
+        if self.mode == 6:
+            self.update_six_col()
+
+    def update_four_col(self):
         one=0
         two=4
         three=8
@@ -578,6 +695,55 @@ class Game(QMainWindow):
         self.spawn_square()
         self.game_lines()
         self.update_squares()
+
+    def update_five_col(self):
+        one=0
+        two=5
+        three=10
+        four=15
+        five= 20
+        for o, t, th, f, fi in self.colmuns:
+            self.game_list[one] = o
+            self.game_list[two]= t
+            self.game_list[three]= th
+            self.game_list[four]= f
+            self.game_list[five]= fi
+            one+=1
+            two+=1
+            three+=1
+            four+=1
+            five+=1
+
+
+        self.spawn_square()
+        self.game_lines()
+        self.update_squares()
+
+    def update_six_col(self):
+        one=0
+        two=6
+        three=12
+        four=18
+        five= 24
+        six= 30
+        for o, t, th, f, fi, s in self.colmuns:
+            self.game_list[one] = o
+            self.game_list[two]= t
+            self.game_list[three]= th
+            self.game_list[four]= f
+            self.game_list[five]= fi
+            self.game_list[six]= s
+            one+=1
+            two+=1
+            three+=1
+            four+=1
+            five+=1
+            six+=1
+
+        self.spawn_square()
+        self.game_lines()
+        self.update_squares()
+
 
     def update_squares(self):
         for i in range(len(self.boxes)):
@@ -695,7 +861,7 @@ class Game(QMainWindow):
         self.rows_2= self.rows
         self.colmuns_2= self.colmuns
 
-        if x == 16:
+        if x == len(self.boxes):
             self.lose_game_check()
             self.game_lines()
 
