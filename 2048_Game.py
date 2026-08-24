@@ -16,8 +16,14 @@ class Game(QMainWindow):
         self.setFixedSize(700, 700)
 
         self.mode= None
+        self.spawn_five= False
+        self.spawn_six= False
 
-        #TODO Make the different formats work
+        #TODO Make and instruction screen
+        #TODO add Score Button on home screen
+        #TODO add score
+
+
 
         self.two= '''
                 QLabel {
@@ -121,6 +127,16 @@ class Game(QMainWindow):
         self.tthousand_fourty_eight= '''
                 QLabel {
                 background: #21473f;
+                border-radius: 4px;
+                border: 1px solid #000000;
+                color: #000000;
+                font: 40px;
+                }
+'''
+
+        self.fthousand_nintey_six= '''
+                QLabel {
+                background: #2afaf4;
                 border-radius: 4px;
                 border: 1px solid #000000;
                 color: #000000;
@@ -251,6 +267,7 @@ class Game(QMainWindow):
                             (4, 0), (4, 1), (4, 2), (4, 3), (4, 4)]
 
             self.mode= 5
+            self.spawn_five= True
 
             self.game_list= [0, 0, 0, 0, 0,
                             0, 0, 0, 0, 0,
@@ -269,6 +286,8 @@ class Game(QMainWindow):
                             (5, 0), (5, 1), (5, 2), (5, 3), (5, 4), (5, 5)]
 
             self.mode= 6
+            self.spawn_five= True
+            self.spawn_six= True
 
             self.game_list= [0, 0, 0, 0, 0, 0,
                             0, 0, 0, 0, 0, 0,
@@ -309,13 +328,20 @@ class Game(QMainWindow):
             #And add it to the game layout
             self.Game_layout.addWidget(n_box, x, y)
 
+        self.game_lines()
+        self.update_squares()
         self.spawn_square()
 
     def spawn_square(self):
         self.box_number= random.randint(0, len(self.boxes)-1)
 
         if not self.game_list[self.box_number] == 0:
-            self.spawn_square()
+            try:
+                self.spawn_square()
+
+            except RecursionError:
+                self.lose_game()
+                return
             return
 
         add_box=self.boxes[self.box_number]
@@ -347,7 +373,18 @@ class Game(QMainWindow):
         for i in range(0, len(self.game_list), 4):
             print(*self.game_list[i : i + 4])
 
-        self.game_lines()
+        if self.spawn_five:
+            self.spawn_five= False
+            self.spawn_square()
+            return
+
+        if self.spawn_six:
+            self.spawn_six= False
+            self.spawn_square()
+            return
+        
+
+        self.game_lines()  
 
 
     #The name of the function matters in this case
@@ -634,6 +671,8 @@ class Game(QMainWindow):
             four+=5
             five+=5
 
+        self.spawn_five= True
+
         self.spawn_square()
         self.game_lines()
         self.update_squares()
@@ -659,6 +698,9 @@ class Game(QMainWindow):
             four+=6
             five+=6
             six+=6
+
+        self.spawn_five= True
+        self.spawn_six= True
 
         self.spawn_square()
         self.game_lines()
@@ -714,6 +756,7 @@ class Game(QMainWindow):
             four+=1
             five+=1
 
+        self.spawn_five= True
 
         self.spawn_square()
         self.game_lines()
@@ -739,6 +782,9 @@ class Game(QMainWindow):
             four+=1
             five+=1
             six+=1
+
+        self.spawn_five= True
+        self.spawn_six= True
 
         self.spawn_square()
         self.game_lines()
@@ -807,7 +853,19 @@ class Game(QMainWindow):
                 current_box.setText('2048')
                 current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
                 current_box.setStyleSheet(self.tthousand_fourty_eight)
+                if self.mode == 4:
+                    self.win_game()
+
+            if self.game_list[i] == 4096:
+                current_box.setText('4096')
+                current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                current_box.setStyleSheet(self.fthousand_nintey_six)
+                if self.mode == 5:
+                    self.win_game()
+
+            if self.game_list[i] == 8192:
                 self.win_game()
+
 
     def win_game(self):
         for i in range(len(self.boxes)):
@@ -841,7 +899,7 @@ class Game(QMainWindow):
             }
 
 ''')
-        leave.clicked.connect(self.close)
+        leave.clicked.connect(self.homescreen)
         
         button_layout= QHBoxLayout()
 
@@ -991,7 +1049,8 @@ class Game(QMainWindow):
             border: 5px solid #000000;
             }
 ''')
-        lose_msg.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        #Sometimes Qt.AlignmetFlag.AlignCenter get messed up so you have to use this instead
+        lose_msg.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
 
         leave= QPushButton('Back To Homescreen')
         leave.setFixedSize(QSize(200, 100))
@@ -1009,7 +1068,7 @@ class Game(QMainWindow):
             }
 
 ''')
-        leave.clicked.connect(self.close)
+        leave.clicked.connect(self.homescreen)
         
         button_layout= QHBoxLayout()
 
