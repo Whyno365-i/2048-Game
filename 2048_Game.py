@@ -1,5 +1,5 @@
 import random
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QLabel, QPushButton, QHBoxLayout
+from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
 from PySide6.QtCore import Qt, QSize
 
 def main():
@@ -19,11 +19,8 @@ class Game(QMainWindow):
         self.spawn_five= False
         self.spawn_six= False
 
-        #TODO Make and instruction screen
-        #TODO add Score Button on home screen
-        #TODO add score
-
-
+        #TODO Make score work
+        #TODO Make High score button work
 
         self.two= '''
                 QLabel {
@@ -211,6 +208,20 @@ class Game(QMainWindow):
             }
 ''')
 
+        score= QPushButton('High Score')
+        score.setFixedSize(QSize(200, 50))
+        score.setStyleSheet('''
+            QPushButton {
+                background: #FAC4C7;
+                font: 30px;
+                border: 1px solid #000000;
+                border-radius: 10px;
+            }
+
+            QPushButton:hover {
+                background: #FCE1E3;
+            }
+''')
 
         exit= QPushButton('Exit')
         exit.setFixedSize(QSize(200, 50))
@@ -235,7 +246,8 @@ class Game(QMainWindow):
         self.home_layout.addWidget(self.four_grid, 2, 1)
         self.home_layout.addWidget(self.five_grid, 2, 2)
         self.home_layout.addWidget(self.six_grid, 2, 3)
-        self.home_layout.addWidget(exit, 3, 2)
+        self.home_layout.addWidget(score, 3, 2)
+        self.home_layout.addWidget(exit, 4, 2)
 
 
         self.four_grid.clicked.connect(lambda: self.grid_list_choose(self.four_grid))
@@ -257,7 +269,6 @@ class Game(QMainWindow):
                             0, 0, 0, 0,
                             0, 0, 0, 0]
 
-            self.Grid()
 
         if number == self.five_grid:
             self.Grid_list= [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4),
@@ -275,7 +286,6 @@ class Game(QMainWindow):
                             0, 0, 0, 0, 0,
                             0, 0, 0, 0, 0]
 
-            self.Grid()
 
         if number == self.six_grid:
             self.Grid_list= [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5),
@@ -297,14 +307,118 @@ class Game(QMainWindow):
                             0, 0, 0, 0, 0, 0]
 
 
-            self.Grid()
+        self.instruction()
 
+
+    def instruction(self):
+        self.mouse= True
+        instruction_container= QWidget()
+        self.setCentralWidget(instruction_container)
+        instruction_container.setStyleSheet('background: #E0E0E0;')
+        instruction_layout= QGridLayout(instruction_container)
+
+        if self.mode== 4:
+            number= 2048
+
+        if self.mode== 5:
+            number= 4096
+
+        if self.mode== 6:
+            number= 8192
+
+        line_one= QLabel(f'The Goal is to get to {number}')
+        line_one.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        line_one.setFixedSize(QSize(600, 70))
+        line_one.setStyleSheet('''
+            QLabel {
+                font: 40px;
+            }
+''')
+
+
+        line_two= QLabel('You can use WASD or arrow keys')
+        line_two.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        line_two.setFixedSize(QSize(600, 70))
+        line_two.setStyleSheet('''
+            QLabel {
+                font: 40px;
+            }
+''')
+
+        line_three= QLabel('Good Luck!')
+        line_three.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        line_three.setFixedSize(QSize(600, 70))
+        line_three.setStyleSheet('''
+            QLabel {
+                font: 40px;
+            }
+''')
+
+        click= QLabel('Click to continue')
+        click.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        click.setFixedSize(QSize(590, 15))
+        click.setStyleSheet('''
+            QLabel {
+                font: 15px;
+            }
+''')
+
+        instruction_layout.addWidget(line_one, 1, 1)
+        instruction_layout.addWidget(line_two, 2, 1)
+        instruction_layout.addWidget(line_three, 3, 1)
+        instruction_layout.addWidget(click, 4, 1)
+
+    def mousePressEvent(self, event):
+        try:
+            if not self.mouse:
+                return
+
+        except AttributeError:
+            return
+
+        if event.button() == Qt.MouseButton.LeftButton or event.button() == Qt.MouseButton.RightButton or event.button() == Qt.MouseButton.MiddleButton:
+            self.Grid()
+            self.mouse= False
 
     def Grid(self):
+        self.overall_container= QWidget()
+        self.overall_container.setStyleSheet('background: #E0E0E0')
+        self.setCentralWidget(self.overall_container)
+        self.overall_layout= QGridLayout(self.overall_container)
+
         self.Game_container= QWidget()
-        self.setCentralWidget(self.Game_container)
-        self.Game_container.setStyleSheet('background: #FFFFFF')
+        self.Game_container.setStyleSheet('background: #C0C0C0; border-radius: 4px')
         self.Game_layout= QGridLayout(self.Game_container)
+
+        self.score_container= QWidget()
+        self.score_container.setStyleSheet('background: #C0C0C0; border-radius: 4px')
+        self.score_container.setFixedSize(QSize(670, 60))
+        self.score_layout= QGridLayout(self.score_container)
+
+        score_name= QLabel('Score:')
+        score_name.setFixedSize(QSize(150, 50))
+        score_name.setStyleSheet('''
+            QLabel {
+                font: 50px;
+            }
+''')
+        self.score= QLabel(f'00000')
+        self.score.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.score.setFixedSize(QSize(350, 50))
+        self.score.setStyleSheet('''
+            QLabel {
+                font: 50px;
+            }
+''')
+
+        self.score_layout.addWidget(score_name, 0, 1)
+        self.score_layout.addWidget(self.score, 0, 2)
+
+        self.score_layout.setColumnStretch(4, 1)
+
+        self.overall_layout.addWidget(self.score_container, 1, 0)
+        self.overall_layout.addWidget(self.Game_container, 2, 0)
+
 
         self.boxes= []
 
@@ -875,7 +989,7 @@ class Game(QMainWindow):
         win_msg.setFixedSize(QSize(300, 100))
         win_msg.setStyleSheet('''
             QLabel {
-            background: #FFFFFF;
+            background: #E0E0E0;
             color: #000000;
             font: 40px;
             border: 5px solid #000000;
@@ -1043,7 +1157,7 @@ class Game(QMainWindow):
         lose_msg.setFixedSize(QSize(300, 100))
         lose_msg.setStyleSheet('''
             QLabel {
-            background: #FFFFFF;
+            background: #E0E0E0;
             color: #000000;
             font: 40px;
             border: 5px solid #000000;
