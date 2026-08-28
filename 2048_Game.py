@@ -1,4 +1,5 @@
 import random
+import json
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
 from PySide6.QtCore import Qt, QSize
 
@@ -19,8 +20,8 @@ class Game(QMainWindow):
         self.spawn_five= False
         self.spawn_six= False
 
-        #TODO Make score work
-        #TODO Make High score button work
+        #TODO make it so you can reset highscores
+        #TODO Make Highscore ancounment screen
 
         self.two= '''
                 QLabel {
@@ -146,6 +147,11 @@ class Game(QMainWindow):
         self.homescreen()
 
     def homescreen(self):
+        with open('highscore.json', 'r') as f:
+            self.highscores= json.load(f)
+
+        self.overall_score= 0
+
         self.home_container= QWidget()
         self.setCentralWidget(self.home_container)
         self.home_container.setStyleSheet('background: #FFFFC5;')
@@ -154,7 +160,6 @@ class Game(QMainWindow):
 
         title= QLabel('2048 Game')
         title.setFixedHeight(50)
-        title.setWordWrap(True)
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title.setStyleSheet('''
             QLabel {
@@ -208,7 +213,7 @@ class Game(QMainWindow):
             }
 ''')
 
-        score= QPushButton('High Score')
+        score= QPushButton('High Scores')
         score.setFixedSize(QSize(200, 50))
         score.setStyleSheet('''
             QPushButton {
@@ -253,7 +258,74 @@ class Game(QMainWindow):
         self.four_grid.clicked.connect(lambda: self.grid_list_choose(self.four_grid))
         self.five_grid.clicked.connect(lambda: self.grid_list_choose(self.five_grid))
         self.six_grid.clicked.connect(lambda: self.grid_list_choose(self.six_grid))
+        score.clicked.connect(self.open_highscore)
         exit.clicked.connect(self.close)
+
+    def open_highscore(self):
+        self.highscore_container= QWidget()
+        self.setCentralWidget(self.highscore_container)
+        self.highscore_container.setStyleSheet('background: #FFFFC5;')
+        self.highscore_layout= QGridLayout(self.highscore_container)
+
+
+        highscore_title= QLabel('High Scores')
+        highscore_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        highscore_title.setStyleSheet('''
+            QLabel {
+            font: 50px;
+            }
+''')
+
+
+        four_highscore= QLabel(f'4x4: {self.highscores['four']}')
+        four_highscore.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        four_highscore.setStyleSheet('''
+            QLabel {
+            font: 35px;
+            }
+''')
+
+
+        five_highscore= QLabel(f'5x5: {self.highscores['five']}')
+        five_highscore.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        five_highscore.setStyleSheet('''
+            QLabel {
+            font: 35px;
+            }
+''')
+    
+        six_highscore= QLabel(f'6x6: {self.highscores['six']}')
+        six_highscore.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        six_highscore.setStyleSheet('''
+            QLabel {
+            font: 35px;
+            }
+''')
+
+        back= QPushButton('Back')
+        back.setFixedSize(QSize(300, 50))
+        back.setStyleSheet('''
+            QPushButton {
+                background: #D4BA6B;
+                color: #000000;
+                border-radius: 4px;
+                border: 1px solid #000000;
+                font: 20px;
+            }
+
+            QPushButton:hover {
+                background: #D8C27E;
+            }
+
+''')
+
+        self.highscore_layout.addWidget(highscore_title, 1, 1)
+        self.highscore_layout.addWidget(four_highscore, 2, 1)
+        self.highscore_layout.addWidget(five_highscore, 3, 1)
+        self.highscore_layout.addWidget(six_highscore, 4, 1)
+        self.highscore_layout.addWidget(back, 5, 1)
+
+        back.clicked.connect(self.homescreen)
 
     def grid_list_choose(self, number):
         if number == self.four_grid:
@@ -548,6 +620,8 @@ class Game(QMainWindow):
                         if row[j] == row[j-1]:
                             row[j-1]= row[j] + row[j-1]
                             row[j]=0
+                            self.overall_score+= row[j-1]
+                            self.update_game_score()
 
                 y=0
                 for i in range(len(row)):
@@ -587,7 +661,8 @@ class Game(QMainWindow):
                             if row[j] == row[j+1]:
                                 row[j+1]= row[j] + row[j+1]
                                 row[j]=0
-
+                                self.overall_score+= row[j+1]
+                                self.update_game_score()
 
                 y=len(row) -1
                 for i in range(len(row)-1, -1, -1):
@@ -627,7 +702,8 @@ class Game(QMainWindow):
                             if colmun[j] == colmun[j-1]:
                                 colmun[j-1]= colmun[j] + colmun[j-1]
                                 colmun[j]=0
-
+                                self.overall_score+= colmun[j-1]
+                                self.update_game_score()
 
                 y=0
                 for i in range(len(colmun)):
@@ -665,6 +741,8 @@ class Game(QMainWindow):
                             if colmun[j] == colmun[j+1]:
                                 colmun[j+1]= colmun[j] + colmun[j+1]
                                 colmun[j]=0
+                                self.overall_score+= colmun[j+1]
+                                self.update_game_score()
 
 
                 y=len(colmun) -1
@@ -685,6 +763,14 @@ class Game(QMainWindow):
         print('\n')
         for i in range(0, len(self.game_list), 4):
             print(*self.game_list[i : i + 4])
+
+    def update_game_score(self):
+        if len(str(self.overall_score)) >= 5:
+            self.score.setText(str(self.overall_score))
+
+        else:
+            new_score= f'{self.overall_score:05d}'
+            self.score.setText(new_score)
 
     def game_lines(self):
         if self.mode == 4:
@@ -982,6 +1068,7 @@ class Game(QMainWindow):
 
 
     def win_game(self):
+        self.score_container.hide()
         for i in range(len(self.boxes)):
             self.boxes[i].hide()
 
@@ -1150,6 +1237,8 @@ class Game(QMainWindow):
 
 
     def lose_game_screen(self):
+        self.check_high_score()
+        self.score_container.hide()
         for i in range(len(self.boxes)):
             self.boxes[i].hide()
 
@@ -1193,5 +1282,18 @@ class Game(QMainWindow):
         self.Game_layout.addWidget(lose_msg, 1, 1)
         self.Game_layout.addLayout(button_layout, 2, 1)
 
+    def check_high_score(self):
+        if self.mode == 4 and self.highscores['four'] < self.overall_score:
+            self.highscores['four'] = self.overall_score
+
+        if self.mode == 5 and self.highscores['five'] < self.overall_score:
+            self.highscores['five'] = self.overall_score
+
+        if self.mode == 6 and self.highscores['six'] < self.overall_score:
+            self.highscores['six'] = self.overall_score
+
+        with open('highscore.json', 'w') as f:
+            json.dump(self.highscores, f, indent=2)
+        
 if __name__ == '__main__':
     main()
