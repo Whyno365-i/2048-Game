@@ -1,6 +1,6 @@
 import random
 import json
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
+from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QLabel, QPushButton, QHBoxLayout, QVBoxLayout, QDialog
 from PySide6.QtCore import Qt, QSize
 
 def main():
@@ -19,9 +19,11 @@ class Game(QMainWindow):
         self.mode= None
         self.spawn_five= False
         self.spawn_six= False
+        self.highscore_click= False
 
-        #TODO make it so you can reset highscores
-        #TODO Make Highscore ancounment screen
+        #TODO Fix Highscore ancounment screen
+        #TODO make it so you can save games so you can continue later
+        #TODO make exit button in the game
 
         self.two= '''
                 QLabel {
@@ -277,26 +279,26 @@ class Game(QMainWindow):
 ''')
 
 
-        four_highscore= QLabel(f'4x4: {self.highscores['four']}')
-        four_highscore.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        four_highscore.setStyleSheet('''
+        self.four_highscore= QLabel(f'4x4: {self.highscores['four']}')
+        self.four_highscore.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.four_highscore.setStyleSheet('''
             QLabel {
             font: 35px;
             }
 ''')
 
 
-        five_highscore= QLabel(f'5x5: {self.highscores['five']}')
-        five_highscore.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        five_highscore.setStyleSheet('''
+        self.five_highscore= QLabel(f'5x5: {self.highscores['five']}')
+        self.five_highscore.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.five_highscore.setStyleSheet('''
             QLabel {
             font: 35px;
             }
 ''')
     
-        six_highscore= QLabel(f'6x6: {self.highscores['six']}')
-        six_highscore.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        six_highscore.setStyleSheet('''
+        self.six_highscore= QLabel(f'6x6: {self.highscores['six']}')
+        self.six_highscore.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.six_highscore.setStyleSheet('''
             QLabel {
             font: 35px;
             }
@@ -319,13 +321,107 @@ class Game(QMainWindow):
 
 ''')
 
+        reset= QPushButton('Reset\nScores')
+        reset.setFixedSize(QSize(75, 50))
+        reset.setStyleSheet('''
+            QPushButton {
+                background: #D4BA6B;
+                color: #000000;
+                border-radius: 4px;
+                border: 1px solid #000000;
+                font: 20px;
+            }
+
+            QPushButton:hover {
+                background: #D8C27E;
+            }
+
+''')
+
         self.highscore_layout.addWidget(highscore_title, 1, 1)
-        self.highscore_layout.addWidget(four_highscore, 2, 1)
-        self.highscore_layout.addWidget(five_highscore, 3, 1)
-        self.highscore_layout.addWidget(six_highscore, 4, 1)
+        self.highscore_layout.addWidget(self.four_highscore, 2, 1)
+        self.highscore_layout.addWidget(self.five_highscore, 3, 1)
+        self.highscore_layout.addWidget(self.six_highscore, 4, 1)
         self.highscore_layout.addWidget(back, 5, 1)
+        self.highscore_layout.addWidget(reset, 5, 0, Qt.AlignmentFlag.AlignLeft)
+
+        self.highscore_layout.setColumnStretch(0, 1)
+        self.highscore_layout.setColumnStretch(2, 1)
+
 
         back.clicked.connect(self.homescreen)
+        reset.clicked.connect(self.warning_reset)
+
+    def warning_reset(self):
+        class warning(QDialog):
+            def __init__(self):
+                super().__init__()
+                self.setFixedSize(QSize(250, 200))
+                dialog_layout= QGridLayout(self)
+                self.setStyleSheet('''background: #D4BA6B;''')
+
+
+                warning_text= QLabel('Warning! This will reset all your\nhighscores.\n\n       Do you want to continue?')
+                warning_text.setStyleSheet('''
+                    QLabel{
+                        font: 15px;
+                    }
+''')
+
+                yes= QPushButton('Yes')
+                yes.setFixedHeight(30)
+                yes.setStyleSheet('''
+                    QPushButton {
+                        background: #ffb09c;
+                        font: 20px;
+                        border: 2px solid #000000;
+                        border-radius: 3px;
+                    }
+
+                    QPushButton:hover {
+                        background: #ffbfaf;
+                    }
+''')
+
+
+                no= QPushButton('No')
+                no.setFixedHeight(30)
+                no.setStyleSheet('''
+                    QPushButton {
+                        background: #FF5F15;
+                        font: 20px;
+                        border: 2px solid #000000;
+                        border-radius: 3px;
+                    }
+                        
+                    QPushButton:hover {
+                        background: #FF8C57;
+                    }
+''')
+
+                dialog_layout.addWidget(warning_text, 1, 0, 1, 2)
+                dialog_layout.addWidget(yes, 2, 1)
+                dialog_layout.addWidget(no, 2, 0)               
+
+                yes.clicked.connect(self.accept)
+                no.clicked.connect(self.close)
+
+        warn_box= warning()
+
+        if warn_box.exec() == QDialog.Accepted:
+            self.reset_scores()
+
+    def reset_scores(self):
+        self.highscores['four']= 0
+        self.highscores['five']= 0
+        self.highscores['six']= 0
+
+        self.four_highscore.setText(f'4x4: {self.highscores['four']}')
+        self.five_highscore.setText(f'5x5: {self.highscores['five']}')
+        self.six_highscore.setText(f'6x6: {self.highscores['six']}')
+
+        with open('highscore.json', 'w') as f:
+            json.dump(self.highscores, f, indent=2)
 
     def grid_list_choose(self, number):
         if number == self.four_grid:
@@ -441,6 +537,9 @@ class Game(QMainWindow):
         instruction_layout.addWidget(click, 4, 1)
 
     def mousePressEvent(self, event):
+        if self.highscore_click and event.button() == Qt.MouseButton.LeftButton or event.button() == Qt.MouseButton.RightButton or event.button() == Qt.MouseButton.MiddleButton:
+            self.lose_game_screen()
+
         try:
             if not self.mouse:
                 return
@@ -1125,7 +1224,7 @@ class Game(QMainWindow):
             self.game_lines()
 
             if self.rows == self.rows_2 and self.colmuns == self.colmuns_2:
-                self.lose_game_screen()
+                self.check_high_score()
         
         else:
             return
@@ -1237,10 +1336,30 @@ class Game(QMainWindow):
 
 
     def lose_game_screen(self):
-        self.check_high_score()
-        self.score_container.hide()
-        for i in range(len(self.boxes)):
-            self.boxes[i].hide()
+        self.overall_container= QWidget()
+        self.overall_container.setStyleSheet('background: #E0E0E0')
+        self.setCentralWidget(self.overall_container)
+        self.overall_layout= QGridLayout(self.overall_container)
+
+        self.Game_container= QWidget()
+        self.Game_container.setStyleSheet('background: #C0C0C0; border-radius: 4px')
+        self.Game_layout= QGridLayout(self.Game_container)
+
+        self.score_container= QWidget()
+        self.score_container.setStyleSheet('background: #C0C0C0; border-radius: 4px')
+        self.score_container.setFixedSize(QSize(670, 60))
+        self.score_layout= QGridLayout(self.score_container)
+
+        try:
+            self.score_container.hide()
+
+            for i in range(len(self.boxes)):
+                self.boxes[i].hide()
+
+        except RuntimeError:
+            pass
+    
+
 
         lose_msg= QLabel('You Lost!')
         lose_msg.setFixedSize(QSize(300, 100))
@@ -1252,7 +1371,7 @@ class Game(QMainWindow):
             border: 5px solid #000000;
             }
 ''')
-        #Sometimes Qt.AlignmetFlag.AlignCenter get messed up so you have to use this instead
+        #Sometimes Qt.AlignmetFlag.AlignCenter gets messed up so you have to use this instead
         lose_msg.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
 
         leave= QPushButton('Back To Homescreen')
@@ -1284,16 +1403,55 @@ class Game(QMainWindow):
 
     def check_high_score(self):
         if self.mode == 4 and self.highscores['four'] < self.overall_score:
+            self.highscore_announcement()
             self.highscores['four'] = self.overall_score
 
-        if self.mode == 5 and self.highscores['five'] < self.overall_score:
+
+        elif self.mode == 5 and self.highscores['five'] < self.overall_score:
+            self.highscore_announcement()
             self.highscores['five'] = self.overall_score
 
-        if self.mode == 6 and self.highscores['six'] < self.overall_score:
+        elif self.mode == 6 and self.highscores['six'] < self.overall_score:
+            self.highscore_announcement()
             self.highscores['six'] = self.overall_score
+
+        else:
+            self.lose_game_screen()
 
         with open('highscore.json', 'w') as f:
             json.dump(self.highscores, f, indent=2)
-        
+
+    def highscore_announcement(self):
+        self.highscore_click= True
+        announcement_container= QWidget()
+        announcement_container.setStyleSheet('background: #E0E0E0;')
+        self.setCentralWidget(announcement_container)
+        announcement_layout= QGridLayout(announcement_container)
+
+        announcement= QLabel('You Got a New High Score!')
+        announcement.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
+        announcement.setStyleSheet('''
+            QLabel {
+                background: #E0E0E0;
+                color: #000000;
+                font: 40px;
+            }
+''')
+
+        high_click= QLabel('Click to continue')
+        high_click.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        high_click.setFixedSize(QSize(590, 15))
+        high_click.setStyleSheet('''
+            QLabel {
+                font: 15px;
+            }
+''')
+
+
+        announcement_layout.addWidget(announcement, 1, 1)
+        announcement_layout.addWidget(high_click, 2, 1)
+
+
+    
 if __name__ == '__main__':
     main()
