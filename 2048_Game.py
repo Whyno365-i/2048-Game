@@ -21,9 +21,7 @@ class Game(QMainWindow):
         self.spawn_six= False
         self.highscore_click= False
 
-        #TODO Fix Highscore ancounment screen
         #TODO make it so you can save games so you can continue later
-        #TODO make exit button in the game
 
         self.two= '''
                 QLabel {
@@ -215,6 +213,23 @@ class Game(QMainWindow):
             }
 ''')
 
+        conti= QPushButton('Continue')
+        conti.setFixedSize(QSize(200, 50))
+        conti.setStyleSheet('''
+            QPushButton {
+                background: #4882e2;
+                font: 30px;
+                border: 1px solid #000000;
+                border-radius: 10px;
+                margin: 0px;
+            }
+
+            QPushButton:hover {
+                background: #6c9be7;
+            }
+''')
+        
+
         score= QPushButton('High Scores')
         score.setFixedSize(QSize(200, 50))
         score.setStyleSheet('''
@@ -223,6 +238,7 @@ class Game(QMainWindow):
                 font: 30px;
                 border: 1px solid #000000;
                 border-radius: 10px;
+                margin: 0px;
             }
 
             QPushButton:hover {
@@ -230,7 +246,7 @@ class Game(QMainWindow):
             }
 ''')
 
-        exit= QPushButton('Exit')
+        exit= QPushButton('Exit ')
         exit.setFixedSize(QSize(200, 50))
         exit.setStyleSheet('''
             QPushButton {
@@ -238,6 +254,7 @@ class Game(QMainWindow):
                 font: 30px;
                 border: 1px solid #000000;
                 border-radius: 10px;
+                margin: 0px;
             }
 
             QPushButton:hover {
@@ -249,19 +266,26 @@ class Game(QMainWindow):
 
         #The first two numbers are the rows and colmuns the nthe next two numbers are
         #rowspan and colmunspan
-        self.home_layout.addWidget(title, 1, 1, 1, 3)
+        self.home_layout.addWidget(title, 1, 1, 1, 3, alignment= Qt.AlignmentFlag.AlignCenter)
         self.home_layout.addWidget(self.four_grid, 2, 1)
         self.home_layout.addWidget(self.five_grid, 2, 2)
         self.home_layout.addWidget(self.six_grid, 2, 3)
-        self.home_layout.addWidget(score, 3, 2)
-        self.home_layout.addWidget(exit, 4, 2)
+        self.home_layout.addWidget(conti, 3, 2, alignment= Qt.AlignmentFlag.AlignBottom)
+        self.home_layout.addWidget(score, 4, 2)
+        self.home_layout.addWidget(exit, 5, 2)
 
+
+        self.home_layout.setRowStretch(1, 2)
+        self.home_layout.setRowStretch(2, 2)
+        self.home_layout.setRowStretch(3, 1)
+        self.home_layout.setRowStretch(6, 1)
 
         self.four_grid.clicked.connect(lambda: self.grid_list_choose(self.four_grid))
         self.five_grid.clicked.connect(lambda: self.grid_list_choose(self.five_grid))
         self.six_grid.clicked.connect(lambda: self.grid_list_choose(self.six_grid))
         score.clicked.connect(self.open_highscore)
         exit.clicked.connect(self.close)
+
 
     def open_highscore(self):
         self.highscore_container= QWidget()
@@ -582,10 +606,29 @@ class Game(QMainWindow):
             }
 ''')
 
+        exit= QPushButton('Exit')
+        exit.setFixedSize(QSize(75, 50))
+        exit.setStyleSheet('''
+            QPushButton {
+                background: #DC143C;
+                font: 30px;
+                border: 1px solid #000000;
+                border-radius: 10px;
+            }
+
+            QPushButton:hover {
+                background: #EB595F;
+            }
+''')
+
         self.score_layout.addWidget(score_name, 0, 1)
         self.score_layout.addWidget(self.score, 0, 2)
+        self.score_layout.addWidget(exit, 0, 3, alignment=Qt.AlignmentFlag.AlignRight)
+
 
         self.score_layout.setColumnStretch(4, 1)
+        self.score_layout.setColumnStretch(3, 5)
+
 
         self.overall_layout.addWidget(self.score_container, 1, 0)
         self.overall_layout.addWidget(self.Game_container, 2, 0)
@@ -618,58 +661,62 @@ class Game(QMainWindow):
         self.spawn_square()
 
     def spawn_square(self):
-        self.box_number= random.randint(0, len(self.boxes)-1)
+        try:
+            self.box_number= random.randint(0, len(self.boxes)-1)
 
-        if not self.game_list[self.box_number] == 0:
-            try:
-                self.spawn_square()
+            if not self.game_list[self.box_number] == 0:
+                try:
+                    self.spawn_square()
 
-            except RecursionError:
-                self.lose_game()
+                except RecursionError:
+                    self.lose_game()
+                    return
                 return
-            return
 
-        add_box=self.boxes[self.box_number]
+            add_box=self.boxes[self.box_number]
 
-        numbers= ['2', '4', '8']
-        weights= [50, 40, 10]
+            numbers= ['2', '4', '8']
+            weights= [50, 40, 10]
 
-        number= random.choices(numbers, weights=weights)[0]
+            number= random.choices(numbers, weights=weights)[0]
 
-        if number == '2':
-            add_box.setText('2')
-            add_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            add_box.setStyleSheet(self.two)
-            self.game_list[self.box_number] = 2 # type: ignore
+            if number == '2':
+                add_box.setText('2')
+                add_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                add_box.setStyleSheet(self.two)
+                self.game_list[self.box_number] = 2 # type: ignore
 
-        elif number == '4':
-            add_box.setText('4')
-            add_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            add_box.setStyleSheet(self.four)
-            self.game_list[self.box_number] = 4 # type: ignore
+            elif number == '4':
+                add_box.setText('4')
+                add_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                add_box.setStyleSheet(self.four)
+                self.game_list[self.box_number] = 4 # type: ignore
 
-        elif number == '8':
-            add_box.setText('8')
-            add_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            add_box.setStyleSheet(self.eight)
-            self.game_list[self.box_number] = 8 # type: ignore
+            elif number == '8':
+                add_box.setText('8')
+                add_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                add_box.setStyleSheet(self.eight)
+                self.game_list[self.box_number] = 8 # type: ignore
 
 
-        for i in range(0, len(self.game_list), 4):
-            print(*self.game_list[i : i + 4])
+            for i in range(0, len(self.game_list), 4):
+                print(*self.game_list[i : i + 4])
 
-        if self.spawn_five:
-            self.spawn_five= False
-            self.spawn_square()
-            return
+            if self.spawn_five:
+                self.spawn_five= False
+                self.spawn_square()
+                return
 
-        if self.spawn_six:
-            self.spawn_six= False
-            self.spawn_square()
-            return
-        
+            if self.spawn_six:
+                self.spawn_six= False
+                self.spawn_square()
+                return
+            
 
-        self.game_lines()  
+            self.game_lines()  
+
+        except RuntimeError:
+            self.lose_game()
 
 
     #The name of the function matters in this case
@@ -1091,85 +1138,98 @@ class Game(QMainWindow):
 
 
     def update_squares(self):
-        for i in range(len(self.boxes)):
-            self.boxes[i].setStyleSheet('background: #696969; border-radius: 4px;')
-            self.boxes[i].setText('')
+        try:
+            for i in range(len(self.boxes)):
+                self.boxes[i].setStyleSheet('background: #696969; border-radius: 4px;')
+                self.boxes[i].setText('')
 
-        for i in range(len(self.game_list)):
-            current_box= self.boxes[i]
+            for i in range(len(self.game_list)):
+                current_box= self.boxes[i]
 
-            if self.game_list[i] == 2:
-                current_box.setText('2')
-                current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                current_box.setStyleSheet(self.two)
+                if self.game_list[i] == 2:
+                    current_box.setText('2')
+                    current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                    current_box.setStyleSheet(self.two)
 
-            if self.game_list[i] == 4:
-                current_box.setText('4')
-                current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                current_box.setStyleSheet(self.four)
+                if self.game_list[i] == 4:
+                    current_box.setText('4')
+                    current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                    current_box.setStyleSheet(self.four)
 
-            if self.game_list[i] == 8:
-                current_box.setText('8')
-                current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                current_box.setStyleSheet(self.eight)
+                if self.game_list[i] == 8:
+                    current_box.setText('8')
+                    current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                    current_box.setStyleSheet(self.eight)
 
-            if self.game_list[i] == 16:
-                current_box.setText('16')
-                current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                current_box.setStyleSheet(self.sixteen)
+                if self.game_list[i] == 16:
+                    current_box.setText('16')
+                    current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                    current_box.setStyleSheet(self.sixteen)
 
-            if self.game_list[i] == 32:
-                current_box.setText('32')
-                current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                current_box.setStyleSheet(self.thirty_two)
+                if self.game_list[i] == 32:
+                    current_box.setText('32')
+                    current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                    current_box.setStyleSheet(self.thirty_two)
 
-            if self.game_list[i] == 64:
-                current_box.setText('64')
-                current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                current_box.setStyleSheet(self.sixty_four)
+                if self.game_list[i] == 64:
+                    current_box.setText('64')
+                    current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                    current_box.setStyleSheet(self.sixty_four)
 
-            if self.game_list[i] == 128:
-                current_box.setText('128')
-                current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                current_box.setStyleSheet(self.hundred_twenty_eight)
+                if self.game_list[i] == 128:
+                    current_box.setText('128')
+                    current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                    current_box.setStyleSheet(self.hundred_twenty_eight)
 
-            if self.game_list[i] == 256:
-                current_box.setText('256')
-                current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                current_box.setStyleSheet(self.thundred_fifty_six)
+                if self.game_list[i] == 256:
+                    current_box.setText('256')
+                    current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                    current_box.setStyleSheet(self.thundred_fifty_six)
 
-            if self.game_list[i] == 512:
-                current_box.setText('512')
-                current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                current_box.setStyleSheet(self.fhundred_twelve)
+                if self.game_list[i] == 512:
+                    current_box.setText('512')
+                    current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                    current_box.setStyleSheet(self.fhundred_twelve)
 
-            if self.game_list[i] == 1024:
-                current_box.setText('1024')
-                current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                current_box.setStyleSheet(self.thousand_twenty_four)
+                if self.game_list[i] == 1024:
+                    current_box.setText('1024')
+                    current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                    current_box.setStyleSheet(self.thousand_twenty_four)
 
-            if self.game_list[i] == 2048:
-                current_box.setText('2048')
-                current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                current_box.setStyleSheet(self.tthousand_fourty_eight)
-                if self.mode == 4:
+                if self.game_list[i] == 2048:
+                    current_box.setText('2048')
+                    current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                    current_box.setStyleSheet(self.tthousand_fourty_eight)
+                    if self.mode == 4:
+                        self.win_game()
+
+                if self.game_list[i] == 4096:
+                    current_box.setText('4096')
+                    current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                    current_box.setStyleSheet(self.fthousand_nintey_six)
+                    if self.mode == 5:
+                        self.win_game()
+
+                if self.game_list[i] == 8192:
                     self.win_game()
 
-            if self.game_list[i] == 4096:
-                current_box.setText('4096')
-                current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                current_box.setStyleSheet(self.fthousand_nintey_six)
-                if self.mode == 5:
-                    self.win_game()
-
-            if self.game_list[i] == 8192:
-                self.win_game()
-
+        except RuntimeError:
+            pass
 
     def win_game(self):
-        self.score_container.hide()
-        for i in range(len(self.boxes)):
-            self.boxes[i].hide()
+        win_container= QWidget()
+        win_container.setStyleSheet('background: #E0E0E0;')
+        self.setCentralWidget(win_container)
+        win_layout= QGridLayout(win_container)
+
+        try:
+            self.score_container.hide()
+
+            for i in range(len(self.boxes)):
+                self.boxes[i].hide()
+
+        except RuntimeError:
+            pass
 
         win_msg= QLabel('You Won!')
         win_msg.setFixedSize(QSize(300, 100))
@@ -1207,14 +1267,18 @@ class Game(QMainWindow):
         button_layout.addWidget(leave)
 
 
-        self.Game_layout.addWidget(win_msg, 1, 1)
-        self.Game_layout.addLayout(button_layout, 2, 1)
+        win_layout.addWidget(win_msg, 1, 1)
+        win_layout.addLayout(button_layout, 2, 1)
 
     def lose_game(self):
         x=0
-        for i in range(len(self.boxes)):
-            if not len(self.boxes[i].text()) == 0:
-                x+=1
+        try:
+            for i in range(len(self.boxes)):
+                if not len(self.boxes[i].text()) == 0:
+                    x+=1
+
+        except RuntimeError:
+            pass
 
         self.rows_2= self.rows
         self.colmuns_2= self.colmuns
@@ -1336,19 +1400,10 @@ class Game(QMainWindow):
 
 
     def lose_game_screen(self):
-        self.overall_container= QWidget()
-        self.overall_container.setStyleSheet('background: #E0E0E0')
-        self.setCentralWidget(self.overall_container)
-        self.overall_layout= QGridLayout(self.overall_container)
-
-        self.Game_container= QWidget()
-        self.Game_container.setStyleSheet('background: #C0C0C0; border-radius: 4px')
-        self.Game_layout= QGridLayout(self.Game_container)
-
-        self.score_container= QWidget()
-        self.score_container.setStyleSheet('background: #C0C0C0; border-radius: 4px')
-        self.score_container.setFixedSize(QSize(670, 60))
-        self.score_layout= QGridLayout(self.score_container)
+        lose_container= QWidget()
+        lose_container.setStyleSheet('background: #E0E0E0;')
+        self.setCentralWidget(lose_container)
+        lose_layout= QGridLayout(lose_container)
 
         try:
             self.score_container.hide()
@@ -1398,10 +1453,11 @@ class Game(QMainWindow):
         button_layout.addWidget(leave)
 
 
-        self.Game_layout.addWidget(lose_msg, 1, 1)
-        self.Game_layout.addLayout(button_layout, 2, 1)
+        lose_layout.addWidget(lose_msg, 1, 1)
+        lose_layout.addLayout(button_layout, 2, 1)
 
     def check_high_score(self):
+        print('1')
         if self.mode == 4 and self.highscores['four'] < self.overall_score:
             self.highscore_announcement()
             self.highscores['four'] = self.overall_score
