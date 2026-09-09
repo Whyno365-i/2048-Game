@@ -21,6 +21,7 @@ class Game(QMainWindow):
         self.spawn_six= False
         self.highscore_click= False
 
+        #TODO Figure out highscore announcment glitch
         #TODO make it so you can save games so you can continue later
 
         self.two= '''
@@ -147,8 +148,12 @@ class Game(QMainWindow):
         self.homescreen()
 
     def homescreen(self):
+        self.highscore_click= False
+
         with open('highscore.json', 'r') as f:
-            self.highscores= json.load(f)
+            self.rjson= json.load(f)
+
+            self.highscores= self.rjson["highscores"] 
 
         self.overall_score= 0
 
@@ -444,8 +449,12 @@ class Game(QMainWindow):
         self.five_highscore.setText(f'5x5: {self.highscores['five']}')
         self.six_highscore.setText(f'6x6: {self.highscores['six']}')
 
+        self.rjson["highscores"]= self.highscores
+
         with open('highscore.json', 'w') as f:
-            json.dump(self.highscores, f, indent=2)
+            json.dump(self.rjson, f, indent=2)
+
+        
 
     def grid_list_choose(self, number):
         if number == self.four_grid:
@@ -561,7 +570,7 @@ class Game(QMainWindow):
         instruction_layout.addWidget(click, 4, 1)
 
     def mousePressEvent(self, event):
-        if self.highscore_click and event.button() == Qt.MouseButton.LeftButton or event.button() == Qt.MouseButton.RightButton or event.button() == Qt.MouseButton.MiddleButton:
+        if self.highscore_click and event.button() == Qt.MouseButton.LeftButton or self.highscore_click and event.button() == Qt.MouseButton.RightButton or self.highscore_click and event.button() == Qt.MouseButton.MiddleButton:
             self.lose_game_screen()
 
         try:
@@ -636,9 +645,6 @@ class Game(QMainWindow):
 
         self.boxes= []
 
-        for i in range(0, len(self.game_list), 4):
-            print(*self.game_list[i : i + 4])
-
 
         #How this work is that you make a list object first
         for x, y in self.Grid_list:
@@ -699,8 +705,6 @@ class Game(QMainWindow):
                 self.game_list[self.box_number] = 8 # type: ignore
 
 
-            for i in range(0, len(self.game_list), 4):
-                print(*self.game_list[i : i + 4])
 
             if self.spawn_five:
                 self.spawn_five= False
@@ -784,10 +788,6 @@ class Game(QMainWindow):
         except RecursionError:
             self.lose_game()
 
-        print('\n')
-        for i in range(0, len(self.game_list), 4):
-            print(*self.game_list[i : i + 4])
-
 
     def move_right(self):
         try:
@@ -824,10 +824,6 @@ class Game(QMainWindow):
         
         except RecursionError:
             self.lose_game()
-
-        print('\n')
-        for i in range(0, len(self.game_list), 4):
-            print(*self.game_list[i : i + 4])
 
 
     def move_up(self):
@@ -866,10 +862,6 @@ class Game(QMainWindow):
         except RecursionError:
             self.lose_game()
 
-        print('\n')
-        for i in range(0, len(self.game_list), 4):
-            print(*self.game_list[i : i + 4])
-
     def move_down(self):
         try:
             for n in range(len(self.colmuns)):
@@ -905,10 +897,6 @@ class Game(QMainWindow):
 
         except RecursionError:
             self.lose_game()
-
-        print('\n')
-        for i in range(0, len(self.game_list), 4):
-            print(*self.game_list[i : i + 4])
 
     def update_game_score(self):
         if len(str(self.overall_score)) >= 5:
@@ -1457,25 +1445,30 @@ class Game(QMainWindow):
         lose_layout.addLayout(button_layout, 2, 1)
 
     def check_high_score(self):
-        print('1')
+        self.rjson["highscores"]= self.highscores
+
+        with open('highscore.json', 'w') as f:
+            json.dump(self.rjson, f, indent=2)
+
         if self.mode == 4 and self.highscores['four'] < self.overall_score:
             self.highscore_announcement()
             self.highscores['four'] = self.overall_score
+            return
 
 
         elif self.mode == 5 and self.highscores['five'] < self.overall_score:
             self.highscore_announcement()
             self.highscores['five'] = self.overall_score
+            return
 
         elif self.mode == 6 and self.highscores['six'] < self.overall_score:
             self.highscore_announcement()
             self.highscores['six'] = self.overall_score
+            return
 
         else:
             self.lose_game_screen()
-
-        with open('highscore.json', 'w') as f:
-            json.dump(self.highscores, f, indent=2)
+            return
 
     def highscore_announcement(self):
         self.highscore_click= True
