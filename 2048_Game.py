@@ -21,9 +21,6 @@ class Game(QMainWindow):
         self.spawn_six= False
         self.highscore_click= False
 
-        #TODO Figure out highscore announcment glitch
-        #TODO make it so you can save games so you can continue later
-
         self.two= '''
                 QLabel {
                 background: #FFFFC5;
@@ -149,6 +146,7 @@ class Game(QMainWindow):
 
     def homescreen(self):
         self.highscore_click= False
+        self.check_high= True
 
         with open('highscore.json', 'r') as f:
             self.rjson= json.load(f)
@@ -665,6 +663,12 @@ class Game(QMainWindow):
         self.game_lines()
         self.update_squares()
         self.spawn_square()
+
+    def save_ask(self):
+        #TODO Add save pop-up
+        #TODO Add continue screen
+        #TODO make it so you can save games so you can continue later
+        pass
 
     def spawn_square(self):
         try:
@@ -1445,30 +1449,35 @@ class Game(QMainWindow):
         lose_layout.addLayout(button_layout, 2, 1)
 
     def check_high_score(self):
+        if self.mode == 4 and self.highscores['four'] < self.overall_score:
+            self.highscore_announcement()
+            self.highscores['four'] = self.overall_score
+            self.check_high= False
+            
+        elif self.mode == 5 and self.highscores['five'] < self.overall_score:
+            self.highscore_announcement()
+            self.highscores['five'] = self.overall_score
+            self.check_high= False
+
+        elif self.mode == 6 and self.highscores['six'] < self.overall_score:
+            self.highscore_announcement()
+            self.highscores['six'] = self.overall_score
+            self.check_high= False
+
+        else:
+            if self.check_high:
+                self.lose_game_screen()
+
+
+
+
         self.rjson["highscores"]= self.highscores
 
         with open('highscore.json', 'w') as f:
             json.dump(self.rjson, f, indent=2)
 
-        if self.mode == 4 and self.highscores['four'] < self.overall_score:
-            self.highscore_announcement()
-            self.highscores['four'] = self.overall_score
-            return
+        return
 
-
-        elif self.mode == 5 and self.highscores['five'] < self.overall_score:
-            self.highscore_announcement()
-            self.highscores['five'] = self.overall_score
-            return
-
-        elif self.mode == 6 and self.highscores['six'] < self.overall_score:
-            self.highscore_announcement()
-            self.highscores['six'] = self.overall_score
-            return
-
-        else:
-            self.lose_game_screen()
-            return
 
     def highscore_announcement(self):
         self.highscore_click= True
