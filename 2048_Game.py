@@ -288,6 +288,7 @@ class Game(QMainWindow):
         self.six_grid.clicked.connect(lambda: self.grid_list_choose(self.six_grid))
         score.clicked.connect(self.open_highscore)
         exit.clicked.connect(self.close)
+        conti.clicked.connect(self.continue_screen)
 
 
     def open_highscore(self):
@@ -632,6 +633,8 @@ class Game(QMainWindow):
         self.score_layout.addWidget(self.score, 0, 2)
         self.score_layout.addWidget(exit, 0, 3, alignment=Qt.AlignmentFlag.AlignRight)
 
+        exit.clicked.connect(self.save_ask)
+
 
         self.score_layout.setColumnStretch(4, 1)
         self.score_layout.setColumnStretch(3, 5)
@@ -665,10 +668,138 @@ class Game(QMainWindow):
         self.spawn_square()
 
     def save_ask(self):
-        #TODO Add save pop-up
         #TODO Add continue screen
         #TODO make it so you can save games so you can continue later
-        pass
+
+        class save(QDialog):
+            def __init__(self):
+                super().__init__()
+                self.no_bool= False
+
+                self.setFixedSize(QSize(250, 200))
+                dialog_layout= QGridLayout(self)
+                self.setStyleSheet('''background: #D4BA6B;''')
+
+
+                save_text= QLabel('Do you want to save this game?')
+                save_text.setStyleSheet('''
+                    QLabel{
+                        font: 16px;
+                    }
+''')
+
+                yes= QPushButton('Yes')
+                yes.setFixedHeight(30)
+                yes.setStyleSheet('''
+                    QPushButton {
+                        background: #ffb09c;
+                        font: 20px;
+                        border: 2px solid #000000;
+                        border-radius: 3px;
+                    }
+
+                    QPushButton:hover {
+                        background: #ffbfaf;
+                    }
+''')
+
+
+                self.no= QPushButton('No')
+                self.no.setFixedHeight(30)
+                self.no.setStyleSheet('''
+                    QPushButton {
+                        background: #FF5F15;
+                        font: 20px;
+                        border: 2px solid #000000;
+                        border-radius: 3px;
+                    }
+                        
+                    QPushButton:hover {
+                        background: #FF8C57;
+                    }
+''')
+
+                self.go_back= QPushButton('Back')
+                self.go_back.setFixedHeight(30)
+                self.go_back.setStyleSheet('''
+                    QPushButton {
+                        background: #88E788;
+                        font: 20px;
+                        border: 2px solid #000000;
+                        border-radius: 3px;
+                    }
+                        
+                    QPushButton:hover {
+                        background: #a6f0a6;
+                    }
+''')
+
+                dialog_layout.addWidget(save_text, 1, 0, 1, 2)
+                dialog_layout.addWidget(self.go_back, 2, 0, 1, 2)
+                dialog_layout.addWidget(yes, 3, 1)
+                dialog_layout.addWidget(self.no, 3, 0)               
+
+                yes.clicked.connect(self.accept)
+                self.no.clicked.connect(lambda: (self.close(), self.no_true()))
+                self.go_back.clicked.connect(self.close)
+
+            def no_true(self):
+                self.no_bool= True
+
+            def close_type(self):
+                if self.no_bool:
+                    return 'No'
+
+                else:
+                    pass
+                
+
+        save= save()
+
+        if save.exec() == QDialog.Accepted:
+            self.save_game()
+
+        if QDialog.close:
+            if save.close_type() == 'No':
+                self.homescreen()
+
+            else:
+                pass
+
+    def save_game(self):
+        saves= self.rjson['save']
+
+        if self.mode == 4:
+            the_save= saves[0]
+            num= 0
+
+        if self.mode == 5:
+            the_save= saves[1]
+            num= 1
+
+        if self.mode == 6:
+            the_save= saves[2]
+            num=2
+
+        the_save['board']= self.game_list
+
+        the_save['score']= self.overall_score
+
+        saves[num]= the_save
+
+        self.rjson["save"]= saves
+
+        with open('highscore.json', 'w') as f:
+            json.dump(self.rjson, f, indent=2)
+
+        self.homescreen()
+
+    def continue_screen(self):
+        #TODO make screen
+        continue_container= QWidget()
+        continue_container.setStyleSheet('background: #E0E0E0;')
+        self.setCentralWidget(continue_container)
+        continue_layout= QGridLayout(continue_container)
 
     def spawn_square(self):
         try:
@@ -1467,9 +1598,6 @@ class Game(QMainWindow):
         else:
             if self.check_high:
                 self.lose_game_screen()
-
-
-
 
         self.rjson["highscores"]= self.highscores
 
