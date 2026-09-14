@@ -12,6 +12,8 @@ def main():
 
 class Game(QMainWindow):
     def __init__(self):
+        #TODO make it reset the save file after the game ends
+        #TODO add a warning screen for starting a new game if you already have a save
         super().__init__()
         self.setWindowTitle('2048 Game')
         self.setFixedSize(700, 700)
@@ -20,6 +22,7 @@ class Game(QMainWindow):
         self.spawn_five= False
         self.spawn_six= False
         self.highscore_click= False
+        self.win= False
 
         self.two= '''
                 QLabel {
@@ -152,6 +155,7 @@ class Game(QMainWindow):
             self.rjson= json.load(f)
 
             self.highscores= self.rjson["highscores"] 
+            self.saves= self.rjson['save']
 
         self.overall_score= 0
 
@@ -168,7 +172,7 @@ class Game(QMainWindow):
             QLabel {
             font: 50px;
             }
-''')
+''')      
 
         self.four_grid= QPushButton('4x4 Grid')
         self.four_grid.setFixedSize(QSize(200, 100))
@@ -457,6 +461,8 @@ class Game(QMainWindow):
 
     def grid_list_choose(self, number):
         if number == self.four_grid:
+
+
             self.Grid_list= [(0, 0), (0, 1), (0, 2), (0, 3),
                             (1, 0), (1, 1), (1, 2), (1, 3),
                             (2, 0), (2, 1), (2, 2), (2, 3),
@@ -570,7 +576,11 @@ class Game(QMainWindow):
 
     def mousePressEvent(self, event):
         if self.highscore_click and event.button() == Qt.MouseButton.LeftButton or self.highscore_click and event.button() == Qt.MouseButton.RightButton or self.highscore_click and event.button() == Qt.MouseButton.MiddleButton:
-            self.lose_game_screen()
+            if self.win:
+                self.win_game()
+
+            else:
+                self.lose_game_screen()
 
         try:
             if not self.mouse:
@@ -663,14 +673,21 @@ class Game(QMainWindow):
             #And add it to the game layout
             self.Game_layout.addWidget(n_box, x, y)
 
+        try:
+            if self.true_save:
+                self.game_lines()
+                self.update_squares()
+                self.update_game_score()
+                return 
+
+        except AttributeError:
+            pass
+
         self.game_lines()
         self.update_squares()
         self.spawn_square()
 
     def save_ask(self):
-        #TODO Add continue screen
-        #TODO make it so you can save games so you can continue later
-
         class save(QDialog):
             def __init__(self):
                 super().__init__()
@@ -767,27 +784,25 @@ class Game(QMainWindow):
                 pass
 
     def save_game(self):
-        saves= self.rjson['save']
-
         if self.mode == 4:
-            the_save= saves[0]
+            the_save= self.saves[0]
             num= 0
 
         if self.mode == 5:
-            the_save= saves[1]
+            the_save= self.saves[1]
             num= 1
 
         if self.mode == 6:
-            the_save= saves[2]
+            the_save= self.saves[2]
             num=2
 
         the_save['board']= self.game_list
 
         the_save['score']= self.overall_score
 
-        saves[num]= the_save
+        self.saves[num]= the_save
 
-        self.rjson["save"]= saves
+        self.rjson["save"]= self.saves
 
         with open('highscore.json', 'w') as f:
             json.dump(self.rjson, f, indent=2)
@@ -795,12 +810,158 @@ class Game(QMainWindow):
         self.homescreen()
 
     def continue_screen(self):
-        #TODO make screen
         continue_container= QWidget()
-        continue_container.setStyleSheet('background: #E0E0E0;')
+        continue_container.setStyleSheet('background: #FFFFC5;')
         self.setCentralWidget(continue_container)
         continue_layout= QGridLayout(continue_container)
 
+        continue_text= QLabel('Click the save you want to continue')
+        continue_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        continue_text.setStyleSheet('''
+            QLabel {
+                font: 35px;
+            }
+''')
+
+        four= QPushButton('4x4')
+        four.setFixedSize(QSize(200, 100))
+        four.setStyleSheet('''
+        QPushButton {
+            background: #FFD580;
+            font: 30px;
+            border: 1px solid #000000;
+            border-radius: 10px;
+        }
+
+        QPushButton:hover {
+            background: #FFE5B2;
+        }
+''')
+
+
+        five= QPushButton('5x5')
+        five.setFixedSize(QSize(200, 100))
+        five.setStyleSheet('''
+            QPushButton {
+                background: #ffb09c;
+                font: 30px;
+                border: 1px solid #000000;
+                border-radius: 10px;
+            }
+
+            QPushButton:hover {
+                background: #ffbfaf;
+            }
+''')
+
+        six= QPushButton('6x6')
+        six.setFixedSize(QSize(200, 100))
+        six.setStyleSheet('''
+            QPushButton {
+                background: #FF5F15;
+                font: 30px;
+                border: 1px solid #000000;
+                border-radius: 10px;
+            }
+
+            QPushButton:hover {
+                background: #FF8C57;
+            }
+''')
+
+
+        back= QPushButton('Back')
+        back.setStyleSheet('''
+            QPushButton {
+                background: #DC143C;
+                font: 30px;
+                border: 1px solid #000000;
+                border-radius: 10px;
+                margin: 0px;
+            }
+
+            QPushButton:hover {
+                background: #EB595F;
+            }
+''')
+
+        continue_layout.addWidget(continue_text, 0, 1)
+        continue_layout.addWidget(four, 1, 1, alignment= Qt.AlignmentFlag.AlignCenter)
+        continue_layout.addWidget(five, 2, 1, alignment= Qt.AlignmentFlag.AlignCenter)
+        continue_layout.addWidget(six, 3, 1, alignment= Qt.AlignmentFlag.AlignCenter)
+        continue_layout.addWidget(back, 4, 1)
+
+        if len(set(self.saves[0]['board'])) <= 1:
+            four.hide()
+
+        if len(set(self.saves[1]['board'])) <= 1:
+            five.hide()
+
+        if len(set(self.saves[2]['board'])) <= 1:
+            six.hide()
+
+        if four.isHidden() and five.isHidden() and six.isHidden():
+            continue_text.setText('There are no saves')
+
+        back.clicked.connect(self.homescreen)
+
+        four.clicked.connect(self.four_start_save)
+        five.clicked.connect(self.five_start_save)
+        six.clicked.connect(self.six_start_save)
+
+    def four_start_save(self):
+        self.true_save= True
+        self.Grid_list= [(0, 0), (0, 1), (0, 2), (0, 3),
+                        (1, 0), (1, 1), (1, 2), (1, 3),
+                        (2, 0), (2, 1), (2, 2), (2, 3),
+                        (3, 0), (3, 1), (3, 2), (3, 3)]
+
+        self.mode= 4
+
+        self.game_list= self.saves[0]['board']
+
+        self.overall_score= self.saves[0]['score']
+
+        self.Grid()
+
+    def five_start_save(self):
+        self.true_save= True
+        self.Grid_list= [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4),
+                        (1, 0), (1, 1), (1, 2), (1, 3), (1, 4),
+                        (2, 0), (2, 1), (2, 2), (2, 3), (2, 4),
+                        (3, 0), (3, 1), (3, 2), (3, 3), (3, 4),
+                        (4, 0), (4, 1), (4, 2), (4, 3), (4, 4)]
+
+        self.mode= 5
+        self.spawn_five= True
+
+        self.game_list= self.saves[1]['board']
+
+        self.overall_score= self.saves[1]['score']
+
+
+        self.Grid()
+
+    def six_start_save(self):
+        self.true_save= True
+        self.Grid_list= [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5),
+                        (1, 0), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5),
+                        (2, 0), (2, 1), (2, 2), (2, 3), (2, 4), (2, 5),
+                        (3, 0), (3, 1), (3, 2), (3, 3), (3, 4), (3, 5),
+                        (4, 0), (4, 1), (4, 2), (4, 3), (4, 4), (4, 5),
+                        (5, 0), (5, 1), (5, 2), (5, 3), (5, 4), (5, 5)]
+
+        self.mode= 6
+        self.spawn_five= True
+        self.spawn_six= True
+
+        self.game_list= self.saves[2]['board']
+
+        self.overall_score= self.saves[2]['score']
+
+        self.Grid()
+
+        
     def spawn_square(self):
         try:
             self.box_number= random.randint(0, len(self.boxes)-1)
@@ -1324,17 +1485,20 @@ class Game(QMainWindow):
                     current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
                     current_box.setStyleSheet(self.tthousand_fourty_eight)
                     if self.mode == 4:
-                        self.win_game()
+                        self.win= True
+                        self.check_high_score()
 
                 if self.game_list[i] == 4096:
                     current_box.setText('4096')
                     current_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
                     current_box.setStyleSheet(self.fthousand_nintey_six)
                     if self.mode == 5:
-                        self.win_game()
+                        self.win= True
+                        self.check_high_score()
 
                 if self.game_list[i] == 8192:
-                    self.win_game()
+                    self.win= True
+                    self.check_high_score()
 
         except RuntimeError:
             pass
@@ -1597,7 +1761,11 @@ class Game(QMainWindow):
 
         else:
             if self.check_high:
-                self.lose_game_screen()
+                if self.win:
+                    self.win_game()
+
+                else:
+                    self.lose_game_screen()
 
         self.rjson["highscores"]= self.highscores
 
