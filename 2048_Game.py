@@ -12,8 +12,6 @@ def main():
 
 class Game(QMainWindow):
     def __init__(self):
-        #TODO make it reset the save file after the game ends
-        #TODO add a warning screen for starting a new game if you already have a save
         super().__init__()
         self.setWindowTitle('2048 Game')
         self.setFixedSize(700, 700)
@@ -23,6 +21,7 @@ class Game(QMainWindow):
         self.spawn_six= False
         self.highscore_click= False
         self.win= False
+        self.instruction_true= True
 
         self.two= '''
                 QLabel {
@@ -148,6 +147,7 @@ class Game(QMainWindow):
         self.homescreen()
 
     def homescreen(self):
+        self.instruction_true= True
         self.highscore_click= False
         self.check_high= True
 
@@ -475,7 +475,6 @@ class Game(QMainWindow):
                             0, 0, 0, 0,
                             0, 0, 0, 0]
 
-
         if number == self.five_grid:
             self.Grid_list= [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4),
                             (1, 0), (1, 1), (1, 2), (1, 3), (1, 4),
@@ -513,7 +512,74 @@ class Game(QMainWindow):
                             0, 0, 0, 0, 0, 0]
 
 
-        self.instruction()
+        self.check_save()
+
+        if self.instruction_true== True:
+            print('g')
+            self.instruction()
+
+    def check_save(self):
+        if self.mode== 4:
+            if len(set(self.saves[0]['board'])) > 1:
+                self.overwrite_save('4x4')
+
+            else:
+                self.instruction_true= True
+
+
+        elif self.mode== 5:
+            if len(set(self.saves[1]['board'])) > 1:
+                self.overwrite_save('5x5')
+
+            else:
+                self.instruction_true= True
+
+        elif self.mode== 6:
+            if len(set(self.saves[2]['board'])) > 1:
+                self.overwrite_save('6x6')
+
+            else:
+                self.instruction_true= True
+
+
+    def overwrite_save(self, board: str):
+        class overwrite(QDialog):
+            def __init__(self, type: str):
+                super().__init__()
+
+                self.setFixedSize(QSize(250, 200))
+                overwrite_layout= QGridLayout(self)
+                self.setStyleSheet('''background: #D4BA6B;''')
+
+                overwrite_text= QLabel(f'This will overwrite your {type} save.\nContinue?')
+
+                conti= QPushButton('Continue')
+
+                back= QPushButton('Back')
+
+                overwrite_layout.addWidget(overwrite_text)
+                overwrite_layout.addWidget(conti)
+                overwrite_layout.addWidget(back)
+
+                conti.clicked.connect(self.accept)
+                back.clicked.connect(self.close)
+
+
+
+        overwrite= overwrite(board)
+
+        if overwrite.exec() == QDialog.Accepted:
+            print('h')
+            self.reset_save()
+            self.instruction_true= True
+
+        else:
+            print('f')
+            self.instruction_true= False
+
+
+
+
 
 
     def instruction(self):
@@ -778,6 +844,7 @@ class Game(QMainWindow):
 
         if QDialog.close:
             if save.close_type() == 'No':
+                self.reset_save()
                 self.homescreen()
 
             else:
@@ -1504,6 +1571,7 @@ class Game(QMainWindow):
             pass
 
     def win_game(self):
+        self.reset_save()
         win_container= QWidget()
         win_container.setStyleSheet('background: #E0E0E0;')
         self.setCentralWidget(win_container)
@@ -1687,6 +1755,7 @@ class Game(QMainWindow):
 
 
     def lose_game_screen(self):
+        self.reset_save()
         lose_container= QWidget()
         lose_container.setStyleSheet('background: #E0E0E0;')
         self.setCentralWidget(lose_container)
@@ -1804,6 +1873,44 @@ class Game(QMainWindow):
 
         announcement_layout.addWidget(announcement, 1, 1)
         announcement_layout.addWidget(high_click, 2, 1)
+
+    def reset_save(self):
+        if self.mode == 4:
+            the_save= self.saves[0]
+            the_save['board']= [0, 0, 0, 0,
+                                0, 0, 0, 0,
+                                0, 0, 0, 0,
+                                0, 0, 0, 0]
+            num= 0
+
+        if self.mode == 5:
+            the_save= self.saves[1]
+            the_save['board']= [0, 0, 0, 0, 0,
+                                0, 0, 0, 0, 0,
+                                0, 0, 0, 0, 0,
+                                0, 0, 0, 0, 0,
+                                0, 0, 0, 0, 0]
+            num= 1
+
+        if self.mode == 6:
+            the_save= self.saves[2]
+            the_save['board']= [0, 0, 0, 0, 0, 0,
+                                0, 0, 0, 0, 0, 0,
+                                0, 0, 0, 0, 0, 0,
+                                0, 0, 0, 0, 0, 0,
+                                0, 0, 0, 0, 0, 0,
+                                0, 0, 0, 0, 0, 0]
+            num=2
+
+
+        the_save['score']= 0
+
+        self.saves[num]= the_save
+
+        self.rjson['save']= self.saves
+
+        with open('highscore.json', 'w') as f:
+            json.dump(self.rjson, f, indent=2)
 
 
     
