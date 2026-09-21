@@ -1,7 +1,10 @@
 import random
 import json
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QLabel, QPushButton, QHBoxLayout, QVBoxLayout, QDialog
+from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QLabel, QPushButton, QHBoxLayout, QDialog
 from PySide6.QtCore import Qt, QSize
+from PySide6.QtGui import QIcon
+import ctypes
+from pathlib import Path
 
 def main():
     app= QApplication()
@@ -16,12 +19,23 @@ class Game(QMainWindow):
         self.setWindowTitle('2048 Game')
         self.setFixedSize(700, 700)
 
+        myappid = "mycompany.myproduct.subproduct.version" 
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+
+        file_path= Path(__file__).resolve().parent
+
+        self.complete_path= str(file_path / '2048 icon.ico')
+
+        self.setWindowIcon(QIcon(self.complete_path))
+
         self.mode= None
         self.spawn_five= False
         self.spawn_six= False
         self.highscore_click= False
         self.win= False
         self.instruction_true= True
+        self.in_game= False
+        self.save_close= False
 
         self.two= '''
                 QLabel {
@@ -388,6 +402,13 @@ class Game(QMainWindow):
         class warning(QDialog):
             def __init__(self):
                 super().__init__()
+
+                file_path= Path(__file__).resolve().parent
+
+                self.complete_path= str(file_path / '2048 icon.ico')
+
+                self.setWindowIcon(QIcon(self.complete_path))
+
                 self.setFixedSize(QSize(250, 200))
                 dialog_layout= QGridLayout(self)
                 self.setStyleSheet('''background: #D4BA6B;''')
@@ -515,7 +536,6 @@ class Game(QMainWindow):
         self.check_save()
 
         if self.instruction_true== True:
-            print('g')
             self.instruction()
 
     def check_save(self):
@@ -547,15 +567,50 @@ class Game(QMainWindow):
             def __init__(self, type: str):
                 super().__init__()
 
+                file_path= Path(__file__).resolve().parent
+
+                self.complete_path= str(file_path / '2048 icon.ico')
+
+                self.setWindowIcon(QIcon(self.complete_path))
+
                 self.setFixedSize(QSize(250, 200))
                 overwrite_layout= QGridLayout(self)
                 self.setStyleSheet('''background: #D4BA6B;''')
 
-                overwrite_text= QLabel(f'This will overwrite your {type} save.\nContinue?')
+                overwrite_text= QLabel(f'This will overwrite your {type} save.\n                    Continue?')
+                overwrite_text.setStyleSheet('''
+                    QLabel {
+                        font: 15px;
+                    }
+''')
 
                 conti= QPushButton('Continue')
+                conti.setStyleSheet('''
+                    QPushButton {
+                        background: #ffb09c;
+                        font: 20px;
+                        border: 2px solid #000000;
+                        border-radius: 3px;
+                    }
+
+                    QPushButton:hover {
+                        background: #ffbfaf;
+                    }
+''')
 
                 back= QPushButton('Back')
+                back.setStyleSheet('''
+                    QPushButton {
+                        background: #FF5F15;
+                        font: 20px;
+                        border: 2px solid #000000;
+                        border-radius: 3px;
+                    }
+                        
+                    QPushButton:hover {
+                        background: #FF8C57;
+                    }
+''')
 
                 overwrite_layout.addWidget(overwrite_text)
                 overwrite_layout.addWidget(conti)
@@ -569,12 +624,10 @@ class Game(QMainWindow):
         overwrite= overwrite(board)
 
         if overwrite.exec() == QDialog.Accepted:
-            print('h')
             self.reset_save()
             self.instruction_true= True
 
         else:
-            print('f')
             self.instruction_true= False
 
 
@@ -660,6 +713,7 @@ class Game(QMainWindow):
             self.mouse= False
 
     def Grid(self):
+        self.in_game= True
         self.overall_container= QWidget()
         self.overall_container.setStyleSheet('background: #E0E0E0')
         self.setCentralWidget(self.overall_container)
@@ -759,6 +813,12 @@ class Game(QMainWindow):
                 super().__init__()
                 self.no_bool= False
 
+                file_path= Path(__file__).resolve().parent
+
+                self.complete_path= str(file_path / '2048 icon.ico')
+
+                self.setWindowIcon(QIcon(self.complete_path))
+                
                 self.setFixedSize(QSize(250, 200))
                 dialog_layout= QGridLayout(self)
                 self.setStyleSheet('''background: #D4BA6B;''')
@@ -840,10 +900,12 @@ class Game(QMainWindow):
         save= save()
 
         if save.exec() == QDialog.Accepted:
+            self.in_game= False
             self.save_game()
 
         if QDialog.close:
             if save.close_type() == 'No':
+                self.in_game= False
                 self.reset_save()
                 self.homescreen()
 
@@ -874,7 +936,11 @@ class Game(QMainWindow):
         with open('highscore.json', 'w') as f:
             json.dump(self.rjson, f, indent=2)
 
-        self.homescreen()
+        if self.save_close:
+            self.close()
+
+        else:
+            self.homescreen()
 
     def continue_screen(self):
         continue_container= QWidget()
@@ -1571,6 +1637,7 @@ class Game(QMainWindow):
             pass
 
     def win_game(self):
+        self.in_game= False
         self.reset_save()
         win_container= QWidget()
         win_container.setStyleSheet('background: #E0E0E0;')
@@ -1755,6 +1822,7 @@ class Game(QMainWindow):
 
 
     def lose_game_screen(self):
+        self.in_game= False
         self.reset_save()
         lose_container= QWidget()
         lose_container.setStyleSheet('background: #E0E0E0;')
@@ -1913,6 +1981,113 @@ class Game(QMainWindow):
             json.dump(self.rjson, f, indent=2)
 
 
+
+
+    def closeEvent(self, event):
+        if self.in_game:
+            class save(QDialog):
+                def __init__(self):
+                    super().__init__()
+                    self.no_bool= False
+
+                    file_path= Path(__file__).resolve().parent
+
+                    self.complete_path= str(file_path / '2048 icon.ico')
+
+                    self.setWindowIcon(QIcon(self.complete_path))
+
+                    self.setFixedSize(QSize(250, 200))
+                    dialog_layout= QGridLayout(self)
+                    self.setStyleSheet('''background: #D4BA6B;''')
+
+
+                    save_text= QLabel('Do you want to save this game?')
+                    save_text.setStyleSheet('''
+                        QLabel{
+                            font: 16px;
+                        }
+    ''')
+
+                    yes= QPushButton('Yes')
+                    yes.setFixedHeight(30)
+                    yes.setStyleSheet('''
+                        QPushButton {
+                            background: #ffb09c;
+                            font: 20px;
+                            border: 2px solid #000000;
+                            border-radius: 3px;
+                        }
+
+                        QPushButton:hover {
+                            background: #ffbfaf;
+                        }
+    ''')
+
+
+                    self.no= QPushButton('No')
+                    self.no.setFixedHeight(30)
+                    self.no.setStyleSheet('''
+                        QPushButton {
+                            background: #FF5F15;
+                            font: 20px;
+                            border: 2px solid #000000;
+                            border-radius: 3px;
+                        }
+                            
+                        QPushButton:hover {
+                            background: #FF8C57;
+                        }
+    ''')
+
+                    self.go_back= QPushButton('Back')
+                    self.go_back.setFixedHeight(30)
+                    self.go_back.setStyleSheet('''
+                        QPushButton {
+                            background: #88E788;
+                            font: 20px;
+                            border: 2px solid #000000;
+                            border-radius: 3px;
+                        }
+                            
+                        QPushButton:hover {
+                            background: #a6f0a6;
+                        }
+    ''')
+
+                    dialog_layout.addWidget(save_text, 1, 0, 1, 2)
+                    dialog_layout.addWidget(self.go_back, 2, 0, 1, 2)
+                    dialog_layout.addWidget(yes, 3, 1)
+                    dialog_layout.addWidget(self.no, 3, 0)               
+
+                    yes.clicked.connect(self.accept)
+                    self.no.clicked.connect(lambda: (self.close(), self.no_true()))
+                    self.go_back.clicked.connect(self.close)
+
+                def no_true(self):
+                    self.no_bool= True
+
+                def close_type(self):
+                    if self.no_bool:
+                        return 'No'
+
+                    else:
+                        pass
+                    
+
+            save= save()
+
+            if save.exec() == QDialog.Accepted:
+                self.save_close= True
+                self.save_game()
+
+
+
+            if QDialog.close:
+                if save.close_type() == 'No':
+                    self.reset_save()
+
+                else:
+                    event.ignore()
     
 if __name__ == '__main__':
     main()
