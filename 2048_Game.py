@@ -400,8 +400,8 @@ class Game(QMainWindow):
 
     def warning_reset(self):
         class warning(QDialog):
-            def __init__(self):
-                super().__init__()
+            def __init__(self, parent):
+                super().__init__(parent)
 
                 file_path= Path(__file__).resolve().parent
 
@@ -459,7 +459,7 @@ class Game(QMainWindow):
                 yes.clicked.connect(self.accept)
                 no.clicked.connect(self.close)
 
-        warn_box= warning()
+        warn_box= warning(self)
 
         if warn_box.exec() == QDialog.Accepted:
             self.reset_scores()
@@ -564,8 +564,8 @@ class Game(QMainWindow):
 
     def overwrite_save(self, board: str):
         class overwrite(QDialog):
-            def __init__(self, type: str):
-                super().__init__()
+            def __init__(self, parent, type: str):
+                super().__init__(parent)
 
                 file_path= Path(__file__).resolve().parent
 
@@ -621,7 +621,7 @@ class Game(QMainWindow):
 
 
 
-        overwrite= overwrite(board)
+        overwrite= overwrite(self, board)
 
         if overwrite.exec() == QDialog.Accepted:
             self.reset_save()
@@ -809,8 +809,8 @@ class Game(QMainWindow):
 
     def save_ask(self):
         class save(QDialog):
-            def __init__(self):
-                super().__init__()
+            def __init__(self, parent):
+                super().__init__(parent)
                 self.no_bool= False
 
                 file_path= Path(__file__).resolve().parent
@@ -897,7 +897,7 @@ class Game(QMainWindow):
                     pass
                 
 
-        save= save()
+        save= save(self)
 
         if save.exec() == QDialog.Accepted:
             self.in_game= False
@@ -1986,8 +1986,8 @@ class Game(QMainWindow):
     def closeEvent(self, event):
         if self.in_game:
             class save(QDialog):
-                def __init__(self):
-                    super().__init__()
+                def __init__(self, parent):
+                    super().__init__(parent)
                     self.no_bool= False
 
                     file_path= Path(__file__).resolve().parent
@@ -2074,7 +2074,7 @@ class Game(QMainWindow):
                         pass
                     
 
-            save= save()
+            save= save(self)
 
             if save.exec() == QDialog.Accepted:
                 self.save_close= True
